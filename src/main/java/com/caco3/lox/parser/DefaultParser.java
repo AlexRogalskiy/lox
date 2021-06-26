@@ -3,11 +3,13 @@ package com.caco3.lox.parser;
 import com.caco3.lox.expression.BinaryExpression;
 import com.caco3.lox.expression.Expression;
 import com.caco3.lox.expression.GroupingExpression;
+import com.caco3.lox.expression.IdentifierExpression;
 import com.caco3.lox.expression.LiteralExpression;
 import com.caco3.lox.expression.UnaryExpression;
 import com.caco3.lox.lexer.Token;
 import com.caco3.lox.statement.PrintStatement;
 import com.caco3.lox.statement.Statement;
+import com.caco3.lox.statement.VariableDeclarationStatement;
 import com.caco3.lox.util.Assert;
 
 import java.util.ArrayList;
@@ -27,9 +29,27 @@ public class DefaultParser implements Parser {
     public List<Statement> parseStatements() {
         List<Statement> statements = new ArrayList<>();
         while (hasTokens()) {
-            statements.add(nextStatement());
+            statements.add(nextDeclaration());
         }
         return statements;
+    }
+
+    private Statement nextDeclaration() {
+        if (currentTokenIs(Token.Type.VAR)) {
+            advanceToken();
+            Token identifier = advanceToken();
+            Assert.state(identifier.getType() == Token.Type.IDENTIFIER,
+                    () -> identifier + " must be " + Token.Type.IDENTIFIER);
+
+            Expression initializer = null;
+            if (currentTokenIs(Token.Type.EQUAL)) {
+                advanceToken();
+                initializer = nextExpression();
+            }
+            consumeExactly(Token.Type.SEMICOLON);
+            return VariableDeclarationStatement.of(identifier, initializer);
+        }
+        return nextStatement();
     }
 
     private Statement nextStatement() {
@@ -109,6 +129,9 @@ public class DefaultParser implements Parser {
             Expression expression = nextExpression();
             consumeExactly(Token.Type.RIGHT_PARENTHESIS);
             return GroupingExpression.of(expression);
+        }
+        if (currentTokenIs(Token.Type.IDENTIFIER)) {
+            return IdentifierExpression.of(advanceToken());
         }
         throw new IllegalStateException("Unsupported token = " + advanceToken());
     }

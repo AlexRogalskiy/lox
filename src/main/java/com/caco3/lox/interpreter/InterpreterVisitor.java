@@ -3,21 +3,41 @@ package com.caco3.lox.interpreter;
 import com.caco3.lox.expression.BinaryExpression;
 import com.caco3.lox.expression.Expression;
 import com.caco3.lox.expression.GroupingExpression;
+import com.caco3.lox.expression.IdentifierExpression;
 import com.caco3.lox.expression.LiteralExpression;
 import com.caco3.lox.expression.UnaryExpression;
 import com.caco3.lox.expression.visitor.ExpressionVisitor;
 import com.caco3.lox.lexer.Token;
 import com.caco3.lox.statement.PrintStatement;
+import com.caco3.lox.statement.VariableDeclarationStatement;
 import com.caco3.lox.statement.visitor.StatementVisitor;
 import com.caco3.lox.util.Assert;
 import lombok.RequiredArgsConstructor;
 
 import java.io.PrintStream;
+import java.util.HashMap;
+import java.util.LinkedHashMap;
+import java.util.Map;
 
-@RequiredArgsConstructor(staticName = "of")
 public class InterpreterVisitor implements StatementVisitor, ExpressionVisitor {
     private final PrintStream printStream;
+    private final Map<String, Object> variables;
     private Object evaluatedValue;
+
+
+    public InterpreterVisitor(PrintStream printStream) {
+        this.printStream = printStream;
+        this.variables = new LinkedHashMap<>();
+    }
+
+    public InterpreterVisitor(PrintStream printStream, Map<String, Object> variables) {
+        this.printStream = printStream;
+        this.variables = variables;
+    }
+
+    public static InterpreterVisitor of(PrintStream printStream) {
+        return new InterpreterVisitor(printStream);
+    }
 
     @Override
     public void visitBinaryExpression(BinaryExpression binaryExpression) {
@@ -83,12 +103,25 @@ public class InterpreterVisitor implements StatementVisitor, ExpressionVisitor {
         printStream.print(evaluate(printStatement.getExpression()));
     }
 
+    @Override
+    public void visitVariableDeclarationStatement(VariableDeclarationStatement variableDeclarationStatement) {
+        String name = variableDeclarationStatement.getName().getValue();
+        Object value = evaluate(variableDeclarationStatement.getInitializer());
+
+        variables.put(name, value);
+    }
+
+    @Override
+    public void visitIdentifierExpression(IdentifierExpression identifierExpression) {
+        evaluatedValue = variables.get(identifierExpression.getName().getValue());
+    }
+
     private Object evaluate(
             Expression expression
     ) {
         Assert.notNull(expression, "expression == null");
 
-        InterpreterVisitor interpreterVisitor = new InterpreterVisitor(printStream);
+        InterpreterVisitor interpreterVisitor = new InterpreterVisitor(printStream, variables);
         expression.accept(interpreterVisitor);
         return interpreterVisitor.evaluatedValue;
     }
