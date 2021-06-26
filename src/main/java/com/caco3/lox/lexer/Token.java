@@ -4,7 +4,7 @@ import lombok.Value;
 
 @Value(staticConstructor = "of")
 public class Token {
-    enum Type {
+    public enum Type {
         LEFT_PARENTHESIS,
         RIGHT_PARENTHESIS,
         NUMBER_LITERAL,
