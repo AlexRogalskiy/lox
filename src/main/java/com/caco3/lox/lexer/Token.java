@@ -17,6 +17,7 @@ public class Token {
         ELSE,
         LEFT_BRACKET,
         RIGHT_BRACKET,
+        BANG,
         LESS_EQUAL,
         LESS,
         EQUAL_EQUAL,
@@ -25,7 +26,9 @@ public class Token {
         GREATER,
         IDENTIFIER,
         VAR,
-        STRING_LITERAL
+        STRING_LITERAL,
+        PRINT,
+        SEMICOLON
     }
 
 

@@ -10,7 +10,8 @@ import java.util.Set;
 @Value(staticConstructor = "of")
 public class UnaryExpression implements Expression {
     private static final Set<Token.Type> UNARY_TOKEN_TYPES = Set.of(
-            Token.Type.MINUS
+            Token.Type.MINUS,
+            Token.Type.BANG
     );
 
     Token token;

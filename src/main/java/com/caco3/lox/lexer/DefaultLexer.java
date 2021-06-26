@@ -12,7 +12,8 @@ public class DefaultLexer implements Lexer {
     private static final Map<String, Token.Type> KEYWORDS = Map.ofEntries(
             entry("if", Token.Type.IF),
             entry("else", Token.Type.ELSE),
-            entry("var", Token.Type.VAR)
+            entry("var", Token.Type.VAR),
+            entry("print", Token.Type.PRINT)
     );
     private static final Map<Character, Token.Type> SINGLE_CHARACTER_TOKENS = Map.ofEntries(
             entry('(', Token.Type.LEFT_PARENTHESIS),
@@ -25,7 +26,9 @@ public class DefaultLexer implements Lexer {
             entry('}', Token.Type.RIGHT_BRACKET),
             entry('>', Token.Type.GREATER),
             entry('<', Token.Type.LESS),
-            entry('=', Token.Type.EQUAL)
+            entry('=', Token.Type.EQUAL),
+            entry(';', Token.Type.SEMICOLON),
+            entry('!', Token.Type.BANG)
     );
 
 

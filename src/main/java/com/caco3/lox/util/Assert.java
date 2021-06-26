@@ -28,6 +28,15 @@ public abstract class Assert {
         throw new IllegalArgumentException(nullSafeGet(messageSupplier));
     }
 
+    @SuppressWarnings("BooleanParameter")
+    public static void state(boolean state, Supplier<String> messageSupplier) {
+        if (state) {
+            return;
+        }
+
+        throw new IllegalStateException(nullSafeGet(messageSupplier));
+    }
+
     private static <T> T nullSafeGet(Supplier<? extends T> supplier) {
         if (supplier == null) {
             return null;

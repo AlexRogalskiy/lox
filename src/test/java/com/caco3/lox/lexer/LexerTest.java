@@ -123,6 +123,19 @@ public class LexerTest {
                 );
     }
 
+    @Test
+    void printParsed() {
+        Lexer lexer = newLexer("print \"abc\";");
+        List<Token> tokens = lexer.parseTokens();
+
+        assertThat(tokens)
+                .containsExactly(
+                        Token.of("print", 1, Token.Type.PRINT),
+                        Token.of("abc", 1, Token.Type.STRING_LITERAL),
+                        Token.of(";", 1, Token.Type.SEMICOLON)
+                );
+    }
+
     private static Lexer newLexer(String s) {
         return new DefaultLexer(s);
     }
