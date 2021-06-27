@@ -4,6 +4,7 @@ import com.caco3.lox.expression.AssignmentExpression;
 import com.caco3.lox.expression.BinaryExpression;
 import com.caco3.lox.expression.Expression;
 import com.caco3.lox.expression.GroupingExpression;
+import com.caco3.lox.expression.IdentifierExpression;
 import com.caco3.lox.expression.LiteralExpression;
 import com.caco3.lox.expression.UnaryExpression;
 import com.caco3.lox.util.Assert;
@@ -23,6 +24,7 @@ import java.util.List;
  *     <li>{@link #getVisitedUnaryExpressions()}</li>
  *     <li>{@link #getAllVisitedExpressions()}</li>
  *     <li>{@link #getVisitedAssignmentExpressions()}</li>
+ *     <li>{@link #getVisitedIdentifierExpressions()}</li>
  * </ol>
  */
 @Getter
@@ -33,6 +35,7 @@ public class TrackingExpressionVisitor implements ExpressionVisitor {
     private final List<Expression> visitedLiteralExpressions = new ArrayList<>();
     private final List<Expression> visitedGroupingExpressions = new ArrayList<>();
     private final List<AssignmentExpression> visitedAssignmentExpressions = new ArrayList<>();
+    private final List<IdentifierExpression> visitedIdentifierExpressions = new ArrayList<>();
 
     @Override
     public void visitBinaryExpression(BinaryExpression binaryExpression) {
@@ -72,5 +75,13 @@ public class TrackingExpressionVisitor implements ExpressionVisitor {
 
         visitedAssignmentExpressions.add(assignmentExpression);
         allVisitedExpressions.add(assignmentExpression);
+    }
+
+    @Override
+    public void visitIdentifierExpression(IdentifierExpression identifierExpression) {
+        Assert.notNull(identifierExpression, "identifierExpression == null");
+
+        visitedIdentifierExpressions.add(identifierExpression);
+        allVisitedExpressions.add(identifierExpression);
     }
 }

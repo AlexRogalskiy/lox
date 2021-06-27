@@ -8,21 +8,15 @@ import com.caco3.lox.expression.LiteralExpression;
 import com.caco3.lox.expression.UnaryExpression;
 
 public interface ExpressionVisitor {
-    default void visitBinaryExpression(BinaryExpression binaryExpression) {
-    }
+    void visitBinaryExpression(BinaryExpression binaryExpression);
 
-    default void visitUnaryExpression(UnaryExpression unaryExpression) {
-    }
+    void visitUnaryExpression(UnaryExpression unaryExpression);
 
-    default void visitLiteralExpression(LiteralExpression literalExpression) {
-    }
+    void visitLiteralExpression(LiteralExpression literalExpression);
 
-    default void visitGroupingExpression(GroupingExpression groupingExpression) {
-    }
+    void visitGroupingExpression(GroupingExpression groupingExpression);
 
-    default void visitIdentifierExpression(IdentifierExpression identifierExpression) {
-    }
+    void visitIdentifierExpression(IdentifierExpression identifierExpression);
 
-    default void visitAssignmentExpression(AssignmentExpression assignmentExpression) {
-    }
+    void visitAssignmentExpression(AssignmentExpression assignmentExpression);
 }

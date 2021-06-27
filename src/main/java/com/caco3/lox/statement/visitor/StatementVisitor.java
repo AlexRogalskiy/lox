@@ -9,24 +9,17 @@ import com.caco3.lox.statement.VariableDeclarationStatement;
 import com.caco3.lox.statement.WhileStatement;
 
 public interface StatementVisitor {
-    default void visitPrintStatement(PrintStatement printStatement) {
-    }
+    void visitPrintStatement(PrintStatement printStatement);
 
-    default void visitVariableDeclarationStatement(VariableDeclarationStatement variableDeclarationStatement) {
-    }
+    void visitVariableDeclarationStatement(VariableDeclarationStatement variableDeclarationStatement);
 
-    default void visitBlockStatement(BlockStatement blockStatement) {
-    }
+    void visitBlockStatement(BlockStatement blockStatement);
 
-    default void visitExpressionStatement(ExpressionStatement expressionStatement) {
-    }
+    void visitExpressionStatement(ExpressionStatement expressionStatement);
 
-    default void visitIfStatement(IfStatement ifStatement) {
-    }
+    void visitIfStatement(IfStatement ifStatement);
 
-    default void visitWhileStatement(WhileStatement whileStatement) {
-    }
+    void visitWhileStatement(WhileStatement whileStatement);
 
-    default void visitForStatement(ForStatement forStatement) {
-    }
+    void visitForStatement(ForStatement forStatement);
 }
