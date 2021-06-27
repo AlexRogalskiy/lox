@@ -158,8 +158,8 @@ public class InterpreterVisitor implements StatementVisitor, ExpressionVisitor {
         boolean b = (Boolean) condition;
         if (b) {
             ifStatement.getThenBranch().accept(this);
-        } else if (ifStatement.getThenBranch() != null) {
-            ifStatement.getThenBranch().accept(this);
+        } else if (ifStatement.getElseBranch() != null) {
+            ifStatement.getElseBranch().accept(this);
         }
     }
 
