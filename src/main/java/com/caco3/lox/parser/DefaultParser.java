@@ -7,11 +7,13 @@ import com.caco3.lox.expression.IdentifierExpression;
 import com.caco3.lox.expression.LiteralExpression;
 import com.caco3.lox.expression.UnaryExpression;
 import com.caco3.lox.lexer.Token;
+import com.caco3.lox.statement.BlockStatement;
 import com.caco3.lox.statement.PrintStatement;
 import com.caco3.lox.statement.Statement;
 import com.caco3.lox.statement.VariableDeclarationStatement;
 import com.caco3.lox.util.Assert;
 
+import javax.swing.plaf.nimbus.State;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -58,14 +60,23 @@ public class DefaultParser implements Parser {
             consumeExactly(Token.Type.SEMICOLON);
             return printStatement;
         }
+        if (currentTokenIs(Token.Type.LEFT_BRACKET)) {
+            Token openingBracket = advanceToken();
+            List<Statement> statements = new ArrayList<>();
+            while (!currentTokenIs(Token.Type.RIGHT_BRACKET)) {
+                statements.add(nextDeclaration());
+            }
+            Token closingBracket = consumeExactly(Token.Type.RIGHT_BRACKET);
+            return BlockStatement.of(openingBracket, statements, closingBracket);
+        }
         throw new IllegalStateException("Not implemented");
     }
 
-    private void consumeExactly(Token.Type type) {
+    private Token consumeExactly(Token.Type type) {
         if (!currentTokenIs(type)) {
             throw new IllegalStateException("Unexpected token " + type);
         }
-        advanceToken();
+        return advanceToken();
     }
 
     private Expression nextExpression() {

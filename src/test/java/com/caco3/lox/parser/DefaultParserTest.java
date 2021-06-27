@@ -1,10 +1,13 @@
 package com.caco3.lox.parser;
 
 import com.caco3.lox.expression.BinaryExpression;
+import com.caco3.lox.expression.IdentifierExpression;
 import com.caco3.lox.expression.LiteralExpression;
 import com.caco3.lox.lexer.Token;
+import com.caco3.lox.statement.BlockStatement;
 import com.caco3.lox.statement.PrintStatement;
 import com.caco3.lox.statement.Statement;
+import com.caco3.lox.statement.VariableDeclarationStatement;
 import org.junit.jupiter.api.Test;
 
 import java.util.Arrays;
@@ -122,6 +125,33 @@ class DefaultParserTest {
                                         LiteralExpression.of(one),
                                         plus
                                 )
+                        )
+                );
+    }
+
+    @Test
+    void blockSuccessfullyParsed() {
+        Token leftBracket = Token.of("{", 1, Token.Type.LEFT_BRACKET);
+        Token var = Token.of("var", 2, Token.Type.VAR);
+        Token x = Token.of("x", 2, Token.Type.IDENTIFIER);
+        Token equal = Token.of("=", 2, Token.Type.EQUAL);
+        Token ten = Token.of("10", 2, Token.Type.NUMBER_LITERAL);
+        Token semicolon = Token.of(";", 2, Token.Type.SEMICOLON);
+        Token rightBracket = Token.of("}", 3, Token.Type.RIGHT_BRACKET);
+        Parser parser = newParser(leftBracket, var, x, equal, ten, semicolon, rightBracket);
+
+        List<Statement> statements = parser.parseStatements();
+
+        assertThat(statements)
+                .containsExactly(
+                        BlockStatement.of(
+                                leftBracket,
+                                List.of(
+                                        VariableDeclarationStatement.of(
+                                                x, LiteralExpression.of(ten)
+                                        )
+                                ),
+                                rightBracket
                         )
                 );
     }

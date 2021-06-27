@@ -1,5 +1,7 @@
 package com.caco3.lox.interpreter;
 
+import com.caco3.lox.environment.Environment;
+import com.caco3.lox.environment.MapEnvironment;
 import com.caco3.lox.expression.BinaryExpression;
 import com.caco3.lox.expression.Expression;
 import com.caco3.lox.expression.GroupingExpression;
@@ -8,31 +10,29 @@ import com.caco3.lox.expression.LiteralExpression;
 import com.caco3.lox.expression.UnaryExpression;
 import com.caco3.lox.expression.visitor.ExpressionVisitor;
 import com.caco3.lox.lexer.Token;
+import com.caco3.lox.statement.BlockStatement;
 import com.caco3.lox.statement.PrintStatement;
+import com.caco3.lox.statement.Statement;
 import com.caco3.lox.statement.VariableDeclarationStatement;
 import com.caco3.lox.statement.visitor.StatementVisitor;
 import com.caco3.lox.util.Assert;
-import lombok.RequiredArgsConstructor;
 
 import java.io.PrintStream;
-import java.util.HashMap;
-import java.util.LinkedHashMap;
-import java.util.Map;
+import java.util.List;
 
 public class InterpreterVisitor implements StatementVisitor, ExpressionVisitor {
     private final PrintStream printStream;
-    private final Map<String, Object> variables;
+    private final Environment environment;
     private Object evaluatedValue;
 
-
-    public InterpreterVisitor(PrintStream printStream) {
+    private InterpreterVisitor(PrintStream printStream) {
         this.printStream = printStream;
-        this.variables = new LinkedHashMap<>();
+        this.environment = MapEnvironment.create();
     }
 
-    public InterpreterVisitor(PrintStream printStream, Map<String, Object> variables) {
+    private InterpreterVisitor(PrintStream printStream, Environment parentEnvironment) {
         this.printStream = printStream;
-        this.variables = variables;
+        this.environment = MapEnvironment.createWithParent(parentEnvironment);
     }
 
     public static InterpreterVisitor of(PrintStream printStream) {
@@ -108,12 +108,23 @@ public class InterpreterVisitor implements StatementVisitor, ExpressionVisitor {
         String name = variableDeclarationStatement.getName().getValue();
         Object value = evaluate(variableDeclarationStatement.getInitializer());
 
-        variables.put(name, value);
+        environment.put(name, value);
     }
 
     @Override
     public void visitIdentifierExpression(IdentifierExpression identifierExpression) {
-        evaluatedValue = variables.get(identifierExpression.getName().getValue());
+        evaluatedValue = environment.getByName(identifierExpression.getName().getValue());
+    }
+
+    @Override
+    public void visitBlockStatement(BlockStatement blockStatement) {
+        Assert.notNull(blockStatement, "blockStatement == null");
+
+        InterpreterVisitor interpreterVisitor = new InterpreterVisitor(printStream, environment);
+        List<Statement> statements = blockStatement.getStatements();
+        for (Statement statement : statements) {
+            statement.accept(interpreterVisitor);
+        }
     }
 
     private Object evaluate(
@@ -121,7 +132,7 @@ public class InterpreterVisitor implements StatementVisitor, ExpressionVisitor {
     ) {
         Assert.notNull(expression, "expression == null");
 
-        InterpreterVisitor interpreterVisitor = new InterpreterVisitor(printStream, variables);
+        InterpreterVisitor interpreterVisitor = new InterpreterVisitor(printStream, environment);
         expression.accept(interpreterVisitor);
         return interpreterVisitor.evaluatedValue;
     }
