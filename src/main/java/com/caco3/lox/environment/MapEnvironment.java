@@ -56,6 +56,34 @@ public class MapEnvironment implements Environment {
         variables.put(name, maskNull(value));
     }
 
+
+    @Override
+    public boolean hasVariable(String name) {
+        Assert.notNull(name, "name == null");
+        return variables.containsKey(name);
+    }
+
+    @Override
+    public void assign(String name, Object value) {
+        Environment environment = findEnvironmentContaining(name);
+        if (environment == null) {
+            throw NoSuchVariableException.forVariableName(name);
+        }
+        environment.put(name, value);
+    }
+
+    private Environment findEnvironmentContaining(String name) {
+        Assert.notNull(name, "name == null");
+        Environment environment = this;
+        while (environment != null) {
+            if (environment.hasVariable(name)) {
+                return environment;
+            }
+            environment = environment.parent();
+        }
+        return null;
+    }
+
     @Override
     public Environment parent() {
         return parent;

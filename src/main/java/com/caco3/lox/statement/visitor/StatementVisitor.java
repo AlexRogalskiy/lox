@@ -5,6 +5,7 @@ import com.caco3.lox.statement.ExpressionStatement;
 import com.caco3.lox.statement.IfStatement;
 import com.caco3.lox.statement.PrintStatement;
 import com.caco3.lox.statement.VariableDeclarationStatement;
+import com.caco3.lox.statement.WhileStatement;
 
 public interface StatementVisitor {
     default void visitPrintStatement(PrintStatement printStatement) {
@@ -20,5 +21,8 @@ public interface StatementVisitor {
     }
 
     default void visitIfStatement(IfStatement ifStatement) {
+    }
+
+    default void visitWhileStatement(WhileStatement whileStatement) {
     }
 }

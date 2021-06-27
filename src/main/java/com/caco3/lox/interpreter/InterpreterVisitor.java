@@ -17,6 +17,7 @@ import com.caco3.lox.statement.IfStatement;
 import com.caco3.lox.statement.PrintStatement;
 import com.caco3.lox.statement.Statement;
 import com.caco3.lox.statement.VariableDeclarationStatement;
+import com.caco3.lox.statement.WhileStatement;
 import com.caco3.lox.statement.visitor.StatementVisitor;
 import com.caco3.lox.util.Assert;
 
@@ -106,7 +107,7 @@ public class InterpreterVisitor implements StatementVisitor, ExpressionVisitor {
         Assert.notNull(assignmentExpression, "assignmentExpression == null");
 
         Token name = assignmentExpression.getIdentifier();
-        environment.put(name.getValue(), evaluate(assignmentExpression.getTarget()));
+        environment.assign(name.getValue(), evaluate(assignmentExpression.getTarget()));
     }
 
     @Override
@@ -161,6 +162,34 @@ public class InterpreterVisitor implements StatementVisitor, ExpressionVisitor {
         } else if (ifStatement.getElseBranch() != null) {
             ifStatement.getElseBranch().accept(this);
         }
+    }
+
+    @Override
+    public void visitWhileStatement(WhileStatement whileStatement) {
+        Assert.notNull(whileStatement, "whileStatement");
+
+        Expression conditionExpression = whileStatement.getCondition();
+        boolean condition = evaluate(conditionExpression, Boolean.class);
+        Statement statement = whileStatement.getStatement();
+        while (condition) {
+            statement.accept(this);
+            condition = evaluate(conditionExpression, Boolean.class);
+        }
+    }
+
+    private <T> T evaluate(
+            Expression expression,
+            Class<T> clazz
+    ) {
+        Assert.notNull(expression, "expression == null");
+        Assert.notNull(clazz, "clazz == null");
+
+        InterpreterVisitor interpreterVisitor = new InterpreterVisitor(printStream, environment);
+        expression.accept(interpreterVisitor);
+        if (!clazz.isInstance(interpreterVisitor.evaluatedValue)) {
+            throw new IllegalStateException(interpreterVisitor.evaluatedValue + " expected to be " + clazz);
+        }
+        return clazz.cast(interpreterVisitor.evaluatedValue);
     }
 
     private Object evaluate(

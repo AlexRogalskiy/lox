@@ -13,6 +13,7 @@ public class DefaultLexer implements Lexer {
             entry("if", Token.Type.IF),
             entry("else", Token.Type.ELSE),
             entry("var", Token.Type.VAR),
+            entry("while", Token.Type.WHILE),
             entry("print", Token.Type.PRINT)
     );
     private static final Map<Character, Token.Type> SINGLE_CHARACTER_TOKENS = Map.ofEntries(

@@ -28,6 +28,7 @@ public class Token {
         VAR,
         STRING_LITERAL,
         PRINT,
+        WHILE,
         SEMICOLON
     }
 

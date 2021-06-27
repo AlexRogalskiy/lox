@@ -61,6 +61,32 @@ class EnvironmentTest {
     }
 
     @Test
+    void variableAssignedToValue() {
+        String name = "abc";
+        environment.put(name, 32);
+        int newValue = 52;
+        environment.assign(name, newValue);
+
+        assertThat(environment.getByName(name))
+                .isEqualTo(newValue);
+    }
+
+    @Test
+    void variableAssignedInParentEnvironment() {
+        Environment parent = environment;
+        MapEnvironment newScopedEnvironment = MapEnvironment.createWithParent(parent);
+        String name = "abc";
+
+        parent.put(name, 42);
+        int newValue = 34;
+        newScopedEnvironment.assign(name, newValue);
+
+        assertThat(parent.getByName(name))
+                .isEqualTo(newValue);
+    }
+
+
+    @Test
     void throwsWhenNonExistentVariableIsAsked() {
         assertThatThrownBy(() -> environment.getByName("def"))
                 .isInstanceOf(NoSuchVariableException.class);

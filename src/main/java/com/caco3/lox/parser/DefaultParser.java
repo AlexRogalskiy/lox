@@ -14,9 +14,9 @@ import com.caco3.lox.statement.IfStatement;
 import com.caco3.lox.statement.PrintStatement;
 import com.caco3.lox.statement.Statement;
 import com.caco3.lox.statement.VariableDeclarationStatement;
+import com.caco3.lox.statement.WhileStatement;
 import com.caco3.lox.util.Assert;
 
-import javax.swing.plaf.nimbus.State;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -61,6 +61,9 @@ public class DefaultParser implements Parser {
         if (currentTokenIs(Token.Type.IF)) {
             return nextIfStatement();
         }
+        if (currentTokenIs(Token.Type.WHILE)) {
+            return nextWhileStatement();
+        }
         if (currentTokenIs(Token.Type.PRINT)) {
             PrintStatement printStatement = PrintStatement.of(advanceToken(), nextExpression());
             consumeExactly(Token.Type.SEMICOLON);
@@ -76,6 +79,15 @@ public class DefaultParser implements Parser {
             return BlockStatement.of(openingBracket, statements, closingBracket);
         }
         return ExpressionStatement.of(nextExpression(), consumeExactly(Token.Type.SEMICOLON));
+    }
+
+    private Statement nextWhileStatement() {
+        Token whileToken = advanceToken();
+        consumeExactly(Token.Type.LEFT_PARENTHESIS);
+        Expression terminationCondition = nextExpression();
+        consumeExactly(Token.Type.RIGHT_PARENTHESIS);
+        Statement statement = nextStatement();
+        return WhileStatement.of(whileToken, terminationCondition, statement);
     }
 
     private IfStatement nextIfStatement() {
