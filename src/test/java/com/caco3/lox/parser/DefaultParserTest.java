@@ -1,11 +1,14 @@
 package com.caco3.lox.parser;
 
-import com.caco3.lox.expression.BinaryExpression;
-import com.caco3.lox.expression.LiteralExpression;
-import com.caco3.lox.lexer.Token;
 import com.caco3.lox.expression.AssignmentExpression;
+import com.caco3.lox.expression.BinaryExpression;
+import com.caco3.lox.expression.IdentifierExpression;
+import com.caco3.lox.expression.LiteralExpression;
+import com.caco3.lox.lexer.DefaultLexer;
+import com.caco3.lox.lexer.Token;
 import com.caco3.lox.statement.BlockStatement;
 import com.caco3.lox.statement.ExpressionStatement;
+import com.caco3.lox.statement.IfStatement;
 import com.caco3.lox.statement.PrintStatement;
 import com.caco3.lox.statement.Statement;
 import com.caco3.lox.statement.VariableDeclarationStatement;
@@ -198,6 +201,42 @@ class DefaultParserTest {
                         )
                 );
 
+    }
+
+    @Test
+    void ifElseParsed() {
+        List<Token> tokens = new DefaultLexer("if (a > b) if (c > d) 1; else 2;").parseTokens();
+        Parser parser = new DefaultParser(tokens);
+        List<Statement> statements = parser.parseStatements();
+
+        assertThat(statements)
+                .containsExactly(
+                        IfStatement.of(
+                                Token.of("if", 1, Token.Type.IF),
+                                BinaryExpression.of(
+                                        IdentifierExpression.of(Token.of("a", 1, Token.Type.IDENTIFIER)),
+                                        IdentifierExpression.of(Token.of("b", 1, Token.Type.IDENTIFIER)),
+                                        Token.of(">", 1, Token.Type.GREATER)
+                                ),
+                                IfStatement.of(
+                                        Token.of("if", 1, Token.Type.IF),
+                                        BinaryExpression.of(
+                                                IdentifierExpression.of(Token.of("c", 1, Token.Type.IDENTIFIER)),
+                                                IdentifierExpression.of(Token.of("d", 1, Token.Type.IDENTIFIER)),
+                                                Token.of(">", 1, Token.Type.GREATER)
+                                        ),
+                                        ExpressionStatement.of(
+                                                LiteralExpression.of(Token.of("1", 1, Token.Type.NUMBER_LITERAL)),
+                                                Token.of(";", 1, Token.Type.SEMICOLON)
+                                        ),
+                                        ExpressionStatement.of(
+                                                LiteralExpression.of(Token.of("2", 1, Token.Type.NUMBER_LITERAL)),
+                                                Token.of(";", 1, Token.Type.SEMICOLON)
+                                        )
+                                ),
+                                null
+                        )
+                );
     }
 
     private static Parser newParser(Token... tokens) {

@@ -13,6 +13,7 @@ import com.caco3.lox.expression.visitor.ExpressionVisitor;
 import com.caco3.lox.lexer.Token;
 import com.caco3.lox.statement.BlockStatement;
 import com.caco3.lox.statement.ExpressionStatement;
+import com.caco3.lox.statement.IfStatement;
 import com.caco3.lox.statement.PrintStatement;
 import com.caco3.lox.statement.Statement;
 import com.caco3.lox.statement.VariableDeclarationStatement;
@@ -142,6 +143,23 @@ public class InterpreterVisitor implements StatementVisitor, ExpressionVisitor {
         List<Statement> statements = blockStatement.getStatements();
         for (Statement statement : statements) {
             statement.accept(interpreterVisitor);
+        }
+    }
+
+    @Override
+    public void visitIfStatement(IfStatement ifStatement) {
+        Assert.notNull(ifStatement, "ifStatement == null");
+
+        Expression expression = ifStatement.getCondition();
+        Object condition = evaluate(expression);
+        if (!(condition instanceof Boolean)) {
+            throw new IllegalStateException("condition must be boolean, but was = '" + condition + "'");
+        }
+        boolean b = (Boolean) condition;
+        if (b) {
+            ifStatement.getThenBranch().accept(this);
+        } else if (ifStatement.getThenBranch() != null) {
+            ifStatement.getThenBranch().accept(this);
         }
     }
 

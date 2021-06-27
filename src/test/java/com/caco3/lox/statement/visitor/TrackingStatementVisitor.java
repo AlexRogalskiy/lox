@@ -2,6 +2,7 @@ package com.caco3.lox.statement.visitor;
 
 import com.caco3.lox.statement.BlockStatement;
 import com.caco3.lox.statement.ExpressionStatement;
+import com.caco3.lox.statement.IfStatement;
 import com.caco3.lox.statement.PrintStatement;
 import com.caco3.lox.statement.Statement;
 import com.caco3.lox.statement.VariableDeclarationStatement;
@@ -18,6 +19,7 @@ public class TrackingStatementVisitor implements StatementVisitor {
     private final List<VariableDeclarationStatement> variableDeclarationStatements = new ArrayList<>();
     private final List<BlockStatement> blockStatements = new ArrayList<>();
     private final List<ExpressionStatement> expressionStatements = new ArrayList<>();
+    private final List<IfStatement> ifStatements = new ArrayList<>();
 
     @Override
     public void visitPrintStatement(PrintStatement printStatement) {
@@ -49,5 +51,13 @@ public class TrackingStatementVisitor implements StatementVisitor {
 
         expressionStatements.add(expressionStatement);
         allStatements.add(expressionStatement);
+    }
+
+    @Override
+    public void visitIfStatement(IfStatement ifStatement) {
+        Assert.notNull(ifStatement, "ifStatement == null");
+
+        ifStatements.add(ifStatement);
+        allStatements.add(ifStatement);
     }
 }

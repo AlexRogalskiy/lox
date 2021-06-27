@@ -10,6 +10,7 @@ import com.caco3.lox.expression.UnaryExpression;
 import com.caco3.lox.lexer.Token;
 import com.caco3.lox.statement.BlockStatement;
 import com.caco3.lox.statement.ExpressionStatement;
+import com.caco3.lox.statement.IfStatement;
 import com.caco3.lox.statement.PrintStatement;
 import com.caco3.lox.statement.Statement;
 import com.caco3.lox.statement.VariableDeclarationStatement;
@@ -57,6 +58,9 @@ public class DefaultParser implements Parser {
     }
 
     private Statement nextStatement() {
+        if (currentTokenIs(Token.Type.IF)) {
+            return nextIfStatement();
+        }
         if (currentTokenIs(Token.Type.PRINT)) {
             PrintStatement printStatement = PrintStatement.of(advanceToken(), nextExpression());
             consumeExactly(Token.Type.SEMICOLON);
@@ -72,6 +76,20 @@ public class DefaultParser implements Parser {
             return BlockStatement.of(openingBracket, statements, closingBracket);
         }
         return ExpressionStatement.of(nextExpression(), consumeExactly(Token.Type.SEMICOLON));
+    }
+
+    private IfStatement nextIfStatement() {
+        Token ifToken = advanceToken();
+        consumeExactly(Token.Type.LEFT_PARENTHESIS);
+        Expression condition = nextExpression();
+        consumeExactly(Token.Type.RIGHT_PARENTHESIS);
+        Statement thenBranch = nextStatement();
+        Statement elseBranch = null;
+        if (currentTokenIs(Token.Type.ELSE)) {
+            advanceToken();
+            elseBranch = nextStatement();
+        }
+        return IfStatement.of(ifToken, condition, thenBranch, elseBranch);
     }
 
     private Token consumeExactly(Token.Type type) {
