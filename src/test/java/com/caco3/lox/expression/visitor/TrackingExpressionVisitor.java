@@ -1,14 +1,15 @@
 package com.caco3.lox.expression.visitor;
 
+import com.caco3.lox.expression.AssignmentExpression;
 import com.caco3.lox.expression.BinaryExpression;
 import com.caco3.lox.expression.Expression;
 import com.caco3.lox.expression.GroupingExpression;
 import com.caco3.lox.expression.LiteralExpression;
 import com.caco3.lox.expression.UnaryExpression;
 import com.caco3.lox.util.Assert;
+import lombok.Getter;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 
 /**
@@ -21,14 +22,17 @@ import java.util.List;
  *     <li>{@link #getVisitedLiteralExpressions()}</li>
  *     <li>{@link #getVisitedUnaryExpressions()}</li>
  *     <li>{@link #getAllVisitedExpressions()}</li>
+ *     <li>{@link #getVisitedAssignmentExpressions()}</li>
  * </ol>
  */
+@Getter
 public class TrackingExpressionVisitor implements ExpressionVisitor {
     private final List<Expression> allVisitedExpressions = new ArrayList<>();
     private final List<Expression> visitedBinaryExpressions = new ArrayList<>();
     private final List<Expression> visitedUnaryExpressions = new ArrayList<>();
     private final List<Expression> visitedLiteralExpressions = new ArrayList<>();
     private final List<Expression> visitedGroupingExpressions = new ArrayList<>();
+    private final List<AssignmentExpression> visitedAssignmentExpressions = new ArrayList<>();
 
     @Override
     public void visitBinaryExpression(BinaryExpression binaryExpression) {
@@ -62,23 +66,11 @@ public class TrackingExpressionVisitor implements ExpressionVisitor {
         visitedGroupingExpressions.add(groupingExpression);
     }
 
-    public List<Expression> getAllVisitedExpressions() {
-        return Collections.unmodifiableList(allVisitedExpressions);
-    }
+    @Override
+    public void visitAssignmentExpression(AssignmentExpression assignmentExpression) {
+        Assert.notNull(assignmentExpression, "assignmentExpression == null");
 
-    public List<Expression> getVisitedBinaryExpressions() {
-        return Collections.unmodifiableList(visitedBinaryExpressions);
-    }
-
-    public List<Expression> getVisitedUnaryExpressions() {
-        return Collections.unmodifiableList(visitedUnaryExpressions);
-    }
-
-    public List<Expression> getVisitedLiteralExpressions() {
-        return Collections.unmodifiableList(visitedLiteralExpressions);
-    }
-
-    public List<Expression> getVisitedGroupingExpressions() {
-        return visitedGroupingExpressions;
+        visitedAssignmentExpressions.add(assignmentExpression);
+        allVisitedExpressions.add(assignmentExpression);
     }
 }

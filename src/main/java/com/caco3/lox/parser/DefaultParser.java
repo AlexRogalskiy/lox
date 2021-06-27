@@ -1,5 +1,6 @@
 package com.caco3.lox.parser;
 
+import com.caco3.lox.expression.AssignmentExpression;
 import com.caco3.lox.expression.BinaryExpression;
 import com.caco3.lox.expression.Expression;
 import com.caco3.lox.expression.GroupingExpression;
@@ -81,7 +82,22 @@ public class DefaultParser implements Parser {
     }
 
     private Expression nextExpression() {
-        return nextEquality();
+        return nextAssignment();
+    }
+
+    private Expression nextAssignment() {
+        Expression expression = nextEquality();
+        if (currentTokenIs(Token.Type.EQUAL)) {
+            Token equalSign = advanceToken();
+            Expression target = nextAssignment();
+
+            if (expression instanceof IdentifierExpression) {
+                IdentifierExpression identifierExpression = (IdentifierExpression) expression;
+                Token name = identifierExpression.getName();
+                return AssignmentExpression.of(name, equalSign, target);
+            }
+        }
+        return expression;
     }
 
     private Expression nextEquality() {

@@ -1,5 +1,6 @@
 package com.caco3.lox.expression.visitor;
 
+import com.caco3.lox.expression.AssignmentExpression;
 import com.caco3.lox.expression.BinaryExpression;
 import com.caco3.lox.expression.GroupingExpression;
 import com.caco3.lox.expression.IdentifierExpression;
@@ -20,5 +21,8 @@ public interface ExpressionVisitor {
     }
 
     default void visitIdentifierExpression(IdentifierExpression identifierExpression) {
+    }
+
+    default void visitAssignmentExpression(AssignmentExpression assignmentExpression) {
     }
 }

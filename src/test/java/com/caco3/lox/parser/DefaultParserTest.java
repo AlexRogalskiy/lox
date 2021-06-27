@@ -3,6 +3,7 @@ package com.caco3.lox.parser;
 import com.caco3.lox.expression.BinaryExpression;
 import com.caco3.lox.expression.LiteralExpression;
 import com.caco3.lox.lexer.Token;
+import com.caco3.lox.expression.AssignmentExpression;
 import com.caco3.lox.statement.BlockStatement;
 import com.caco3.lox.statement.ExpressionStatement;
 import com.caco3.lox.statement.PrintStatement;
@@ -177,6 +178,26 @@ class DefaultParserTest {
                                 semicolon
                         )
                 );
+    }
+
+    @Test
+    void assignmentParsed() {
+        Token x = Token.of("x", 1, Token.Type.IDENTIFIER);
+        Token equal = Token.of("=", 1, Token.Type.EQUAL);
+        Token ten = Token.of("10", 1, Token.Type.NUMBER_LITERAL);
+        Token semicolon = Token.of(";", 1, Token.Type.SEMICOLON);
+
+        Parser parser = newParser(x, equal, ten, semicolon);
+        List<Statement> statements = parser.parseStatements();
+
+        assertThat(statements)
+                .containsExactly(
+                        ExpressionStatement.of(
+                                AssignmentExpression.of(x, equal, LiteralExpression.of(ten)),
+                                semicolon
+                        )
+                );
+
     }
 
     private static Parser newParser(Token... tokens) {

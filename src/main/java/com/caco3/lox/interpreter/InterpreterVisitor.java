@@ -2,6 +2,7 @@ package com.caco3.lox.interpreter;
 
 import com.caco3.lox.environment.Environment;
 import com.caco3.lox.environment.MapEnvironment;
+import com.caco3.lox.expression.AssignmentExpression;
 import com.caco3.lox.expression.BinaryExpression;
 import com.caco3.lox.expression.Expression;
 import com.caco3.lox.expression.GroupingExpression;
@@ -11,6 +12,7 @@ import com.caco3.lox.expression.UnaryExpression;
 import com.caco3.lox.expression.visitor.ExpressionVisitor;
 import com.caco3.lox.lexer.Token;
 import com.caco3.lox.statement.BlockStatement;
+import com.caco3.lox.statement.ExpressionStatement;
 import com.caco3.lox.statement.PrintStatement;
 import com.caco3.lox.statement.Statement;
 import com.caco3.lox.statement.VariableDeclarationStatement;
@@ -32,7 +34,7 @@ public class InterpreterVisitor implements StatementVisitor, ExpressionVisitor {
 
     private InterpreterVisitor(PrintStream printStream, Environment parentEnvironment) {
         this.printStream = printStream;
-        this.environment = MapEnvironment.createWithParent(parentEnvironment);
+        this.environment = parentEnvironment;
     }
 
     public static InterpreterVisitor of(PrintStream printStream) {
@@ -99,6 +101,21 @@ public class InterpreterVisitor implements StatementVisitor, ExpressionVisitor {
     }
 
     @Override
+    public void visitAssignmentExpression(AssignmentExpression assignmentExpression) {
+        Assert.notNull(assignmentExpression, "assignmentExpression == null");
+
+        Token name = assignmentExpression.getIdentifier();
+        environment.put(name.getValue(), evaluate(assignmentExpression.getTarget()));
+    }
+
+    @Override
+    public void visitExpressionStatement(ExpressionStatement expressionStatement) {
+        Assert.notNull(expressionStatement, "expressionStatement == null");
+
+        evaluatedValue = evaluate(expressionStatement.getExpression());
+    }
+
+    @Override
     public void visitPrintStatement(PrintStatement printStatement) {
         printStream.print(evaluate(printStatement.getExpression()));
     }
@@ -120,7 +137,8 @@ public class InterpreterVisitor implements StatementVisitor, ExpressionVisitor {
     public void visitBlockStatement(BlockStatement blockStatement) {
         Assert.notNull(blockStatement, "blockStatement == null");
 
-        InterpreterVisitor interpreterVisitor = new InterpreterVisitor(printStream, environment);
+        InterpreterVisitor interpreterVisitor = new InterpreterVisitor(printStream,
+                MapEnvironment.createWithParent(environment));
         List<Statement> statements = blockStatement.getStatements();
         for (Statement statement : statements) {
             statement.accept(interpreterVisitor);
