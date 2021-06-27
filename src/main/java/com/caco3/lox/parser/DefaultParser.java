@@ -8,6 +8,7 @@ import com.caco3.lox.expression.LiteralExpression;
 import com.caco3.lox.expression.UnaryExpression;
 import com.caco3.lox.lexer.Token;
 import com.caco3.lox.statement.BlockStatement;
+import com.caco3.lox.statement.ExpressionStatement;
 import com.caco3.lox.statement.PrintStatement;
 import com.caco3.lox.statement.Statement;
 import com.caco3.lox.statement.VariableDeclarationStatement;
@@ -69,7 +70,7 @@ public class DefaultParser implements Parser {
             Token closingBracket = consumeExactly(Token.Type.RIGHT_BRACKET);
             return BlockStatement.of(openingBracket, statements, closingBracket);
         }
-        throw new IllegalStateException("Not implemented");
+        return ExpressionStatement.of(nextExpression(), consumeExactly(Token.Type.SEMICOLON));
     }
 
     private Token consumeExactly(Token.Type type) {

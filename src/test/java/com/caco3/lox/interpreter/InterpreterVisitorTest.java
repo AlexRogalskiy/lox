@@ -64,7 +64,8 @@ class InterpreterVisitorTest {
                 Arguments.of("print 1 <= 2;", "true"),
                 Arguments.of("var x = 10 * 2; print x;", "20"),
                 Arguments.of("var x = 10 * 2; print x; { var x = 42; print x; }", "2042"),
-                Arguments.of("var x = 10 * 2; print x; { var x = 42; print x; } print x;", "204220")
+                Arguments.of("var x = 10 * 2; print x; { var x = 42; print x; } print x;", "204220"),
+                Arguments.of("1 + 2;", "")
         );
     }
 }

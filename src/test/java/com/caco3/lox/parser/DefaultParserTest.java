@@ -1,10 +1,10 @@
 package com.caco3.lox.parser;
 
 import com.caco3.lox.expression.BinaryExpression;
-import com.caco3.lox.expression.IdentifierExpression;
 import com.caco3.lox.expression.LiteralExpression;
 import com.caco3.lox.lexer.Token;
 import com.caco3.lox.statement.BlockStatement;
+import com.caco3.lox.statement.ExpressionStatement;
 import com.caco3.lox.statement.PrintStatement;
 import com.caco3.lox.statement.Statement;
 import com.caco3.lox.statement.VariableDeclarationStatement;
@@ -152,6 +152,29 @@ class DefaultParserTest {
                                         )
                                 ),
                                 rightBracket
+                        )
+                );
+    }
+
+    @Test
+    void expressionStatementParsed() {
+        Token one = Token.of("1", 1, Token.Type.NUMBER_LITERAL);
+        Token plus = Token.of("+", 1, Token.Type.PLUS);
+        Token two = Token.of("2", 1, Token.Type.NUMBER_LITERAL);
+        Token semicolon = Token.of(";", 1, Token.Type.SEMICOLON);
+        Parser parser = newParser(one, plus, two, semicolon);
+
+        List<Statement> statements = parser.parseStatements();
+
+        assertThat(statements)
+                .containsExactly(
+                        ExpressionStatement.of(
+                                BinaryExpression.of(
+                                        LiteralExpression.of(one),
+                                        LiteralExpression.of(two),
+                                        plus
+                                ),
+                                semicolon
                         )
                 );
     }
