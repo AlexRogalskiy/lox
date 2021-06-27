@@ -10,6 +10,7 @@ import com.caco3.lox.expression.UnaryExpression;
 import com.caco3.lox.lexer.Token;
 import com.caco3.lox.statement.BlockStatement;
 import com.caco3.lox.statement.ExpressionStatement;
+import com.caco3.lox.statement.ForStatement;
 import com.caco3.lox.statement.IfStatement;
 import com.caco3.lox.statement.PrintStatement;
 import com.caco3.lox.statement.Statement;
@@ -64,6 +65,9 @@ public class DefaultParser implements Parser {
         if (currentTokenIs(Token.Type.WHILE)) {
             return nextWhileStatement();
         }
+        if (currentTokenIs(Token.Type.FOR)) {
+            return nextForStatement();
+        }
         if (currentTokenIs(Token.Type.PRINT)) {
             PrintStatement printStatement = PrintStatement.of(advanceToken(), nextExpression());
             consumeExactly(Token.Type.SEMICOLON);
@@ -79,6 +83,24 @@ public class DefaultParser implements Parser {
             return BlockStatement.of(openingBracket, statements, closingBracket);
         }
         return ExpressionStatement.of(nextExpression(), consumeExactly(Token.Type.SEMICOLON));
+    }
+
+    private Statement nextForStatement() {
+        Token forToken = advanceToken();
+        consumeExactly(Token.Type.LEFT_PARENTHESIS);
+        Statement initializer;
+        if (currentTokenIs(Token.Type.VAR)) {
+            initializer = nextDeclaration();
+        } else {
+            initializer = ExpressionStatement.of(nextExpression(), advanceToken());
+        }
+        Expression condition = nextExpression();
+        consumeExactly(Token.Type.SEMICOLON);
+        Expression action = nextExpression();
+        consumeExactly(Token.Type.RIGHT_PARENTHESIS);
+        Statement body = nextStatement();
+
+        return ForStatement.of(forToken, initializer, condition, action, body);
     }
 
     private Statement nextWhileStatement() {

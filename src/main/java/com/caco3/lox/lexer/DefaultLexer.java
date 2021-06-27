@@ -14,6 +14,7 @@ public class DefaultLexer implements Lexer {
             entry("else", Token.Type.ELSE),
             entry("var", Token.Type.VAR),
             entry("while", Token.Type.WHILE),
+            entry("for", Token.Type.FOR),
             entry("print", Token.Type.PRINT)
     );
     private static final Map<Character, Token.Type> SINGLE_CHARACTER_TOKENS = Map.ofEntries(

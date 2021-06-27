@@ -29,6 +29,7 @@ public class Token {
         STRING_LITERAL,
         PRINT,
         WHILE,
+        FOR,
         SEMICOLON
     }
 

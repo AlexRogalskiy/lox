@@ -13,6 +13,7 @@ import com.caco3.lox.expression.visitor.ExpressionVisitor;
 import com.caco3.lox.lexer.Token;
 import com.caco3.lox.statement.BlockStatement;
 import com.caco3.lox.statement.ExpressionStatement;
+import com.caco3.lox.statement.ForStatement;
 import com.caco3.lox.statement.IfStatement;
 import com.caco3.lox.statement.PrintStatement;
 import com.caco3.lox.statement.Statement;
@@ -173,6 +174,22 @@ public class InterpreterVisitor implements StatementVisitor, ExpressionVisitor {
         Statement statement = whileStatement.getStatement();
         while (condition) {
             statement.accept(this);
+            condition = evaluate(conditionExpression, Boolean.class);
+        }
+    }
+
+    @Override
+    public void visitForStatement(ForStatement forStatement) {
+        Assert.notNull(forStatement, "forStatement == null");
+
+        Statement initializer = forStatement.getInitializer();
+        initializer.accept(this);
+
+        Expression conditionExpression = forStatement.getCondition();
+        boolean condition = evaluate(conditionExpression, Boolean.class);
+        while (condition) {
+            forStatement.getBody().accept(this);
+            forStatement.getAction().accept(this);
             condition = evaluate(conditionExpression, Boolean.class);
         }
     }
