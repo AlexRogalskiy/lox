@@ -1,7 +1,7 @@
 package com.caco3.lox.interpreter;
 
-import com.caco3.lox.environment.Environment;
-import com.caco3.lox.environment.MapEnvironment;
+import com.caco3.lox.environment.Scope;
+import com.caco3.lox.environment.SimpleScope;
 import com.caco3.lox.expression.AssignmentExpression;
 import com.caco3.lox.expression.BinaryExpression;
 import com.caco3.lox.expression.Expression;
@@ -27,17 +27,17 @@ import java.util.List;
 
 public class InterpreterVisitor implements StatementVisitor, ExpressionVisitor {
     private final PrintStream printStream;
-    private final Environment environment;
+    private final Scope scope;
     private Object evaluatedValue;
 
     private InterpreterVisitor(PrintStream printStream) {
         this.printStream = printStream;
-        this.environment = MapEnvironment.create();
+        this.scope = SimpleScope.create();
     }
 
-    private InterpreterVisitor(PrintStream printStream, Environment parentEnvironment) {
+    private InterpreterVisitor(PrintStream printStream, Scope parentScope) {
         this.printStream = printStream;
-        this.environment = parentEnvironment;
+        this.scope = parentScope;
     }
 
     public static InterpreterVisitor of(PrintStream printStream) {
@@ -108,7 +108,7 @@ public class InterpreterVisitor implements StatementVisitor, ExpressionVisitor {
         Assert.notNull(assignmentExpression, "assignmentExpression == null");
 
         Token name = assignmentExpression.getIdentifier();
-        environment.assign(name.getValue(), evaluate(assignmentExpression.getTarget()));
+        scope.assign(name.getValue(), evaluate(assignmentExpression.getTarget()));
     }
 
     @Override
@@ -128,12 +128,12 @@ public class InterpreterVisitor implements StatementVisitor, ExpressionVisitor {
         String name = variableDeclarationStatement.getName().getValue();
         Object value = evaluate(variableDeclarationStatement.getInitializer());
 
-        environment.put(name, value);
+        scope.put(name, value);
     }
 
     @Override
     public void visitIdentifierExpression(IdentifierExpression identifierExpression) {
-        evaluatedValue = environment.getByName(identifierExpression.getName().getValue());
+        evaluatedValue = scope.getByName(identifierExpression.getName().getValue());
     }
 
     @Override
@@ -141,7 +141,7 @@ public class InterpreterVisitor implements StatementVisitor, ExpressionVisitor {
         Assert.notNull(blockStatement, "blockStatement == null");
 
         InterpreterVisitor interpreterVisitor = new InterpreterVisitor(printStream,
-                MapEnvironment.createWithParent(environment));
+                SimpleScope.createWithParent(scope));
         List<Statement> statements = blockStatement.getStatements();
         for (Statement statement : statements) {
             statement.accept(interpreterVisitor);
@@ -201,7 +201,7 @@ public class InterpreterVisitor implements StatementVisitor, ExpressionVisitor {
         Assert.notNull(expression, "expression == null");
         Assert.notNull(clazz, "clazz == null");
 
-        InterpreterVisitor interpreterVisitor = new InterpreterVisitor(printStream, environment);
+        InterpreterVisitor interpreterVisitor = new InterpreterVisitor(printStream, scope);
         expression.accept(interpreterVisitor);
         if (!clazz.isInstance(interpreterVisitor.evaluatedValue)) {
             throw new IllegalStateException(interpreterVisitor.evaluatedValue + " expected to be " + clazz);
@@ -214,7 +214,7 @@ public class InterpreterVisitor implements StatementVisitor, ExpressionVisitor {
     ) {
         Assert.notNull(expression, "expression == null");
 
-        InterpreterVisitor interpreterVisitor = new InterpreterVisitor(printStream, environment);
+        InterpreterVisitor interpreterVisitor = new InterpreterVisitor(printStream, scope);
         expression.accept(interpreterVisitor);
         return interpreterVisitor.evaluatedValue;
     }

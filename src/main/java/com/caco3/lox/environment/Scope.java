@@ -2,7 +2,7 @@ package com.caco3.lox.environment;
 
 import com.caco3.lox.util.Nullable;
 
-public interface Environment {
+public interface Scope {
     Object getByName(String name);
 
     <T> T getByName(String name, Class<T> type);
@@ -12,7 +12,7 @@ public interface Environment {
     boolean hasVariable(String name);
 
     @Nullable
-    Environment parent();
+    Scope parent();
 
     void assign(String name, Object value);
 }

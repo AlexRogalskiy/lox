@@ -6,24 +6,24 @@ import com.caco3.lox.util.Nullable;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
-public class MapEnvironment implements Environment {
+public class SimpleScope implements Scope {
     private static final Object NULL_SENTINEL = new Object();
 
     private final Map<String, Object> variables = new LinkedHashMap<>();
     @Nullable
-    private final Environment parent;
+    private final Scope parent;
 
-    private MapEnvironment(Environment parent) {
+    private SimpleScope(Scope parent) {
         this.parent = parent;
     }
 
-    public static MapEnvironment create() {
-        return new MapEnvironment(null);
+    public static SimpleScope create() {
+        return new SimpleScope(null);
     }
 
-    public static MapEnvironment createWithParent(Environment environment) {
-        Assert.notNull(environment, "environment == null");
-        return new MapEnvironment(environment);
+    public static SimpleScope createWithParent(Scope scope) {
+        Assert.notNull(scope, "environment == null");
+        return new SimpleScope(scope);
     }
 
     @Override
@@ -65,27 +65,27 @@ public class MapEnvironment implements Environment {
 
     @Override
     public void assign(String name, Object value) {
-        Environment environment = findEnvironmentContaining(name);
-        if (environment == null) {
+        Scope scope = findNearestScopeContaining(name);
+        if (scope == null) {
             throw NoSuchVariableException.forVariableName(name);
         }
-        environment.put(name, value);
+        scope.put(name, value);
     }
 
-    private Environment findEnvironmentContaining(String name) {
+    private Scope findNearestScopeContaining(String name) {
         Assert.notNull(name, "name == null");
-        Environment environment = this;
-        while (environment != null) {
-            if (environment.hasVariable(name)) {
-                return environment;
+        Scope scope = this;
+        while (scope != null) {
+            if (scope.hasVariable(name)) {
+                return scope;
             }
-            environment = environment.parent();
+            scope = scope.parent();
         }
         return null;
     }
 
     @Override
-    public Environment parent() {
+    public Scope parent() {
         return parent;
     }
 

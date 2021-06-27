@@ -5,17 +5,17 @@ import org.junit.jupiter.api.Test;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
-class EnvironmentTest {
-    private final Environment environment = MapEnvironment.create();
+class ScopeTest {
+    private final Scope scope = SimpleScope.create();
 
     @Test
     void variablePutAndGet() {
         int value = 1;
         String name = "abc";
 
-        environment.put(name, value);
+        scope.put(name, value);
 
-        assertThat(environment.getByName(name))
+        assertThat(scope.getByName(name))
                 .isEqualTo(value);
     }
 
@@ -24,24 +24,24 @@ class EnvironmentTest {
         int value = 1;
         String name = "abc";
 
-        environment.put(name, value);
+        scope.put(name, value);
 
-        assertThat(environment.getByName(name, Integer.class))
+        assertThat(scope.getByName(name, Integer.class))
                 .isEqualTo(value);
     }
 
     @Test
     void nullSuccessfullyStored() {
-        environment.put("def", null);
+        scope.put("def", null);
 
-        assertThat(environment.getByName("def"))
+        assertThat(scope.getByName("def"))
                 .isNull();
     }
 
     @Test
     void nullSuccessfullyStoredAndRetrievedFromCurrentEnvironment() {
-        environment.put("abc", 3);
-        MapEnvironment newScopedEnvironment = MapEnvironment.createWithParent(environment);
+        scope.put("abc", 3);
+        SimpleScope newScopedEnvironment = SimpleScope.createWithParent(scope);
         newScopedEnvironment.put("abc", null);
 
         assertThat(newScopedEnvironment.getByName("abc"))
@@ -52,9 +52,9 @@ class EnvironmentTest {
     void parentIsConsulted() {
         String name = "abc";
         int value = 42;
-        environment.put(name, value);
+        scope.put(name, value);
 
-        MapEnvironment newScopedEnvironment = MapEnvironment.createWithParent(environment);
+        SimpleScope newScopedEnvironment = SimpleScope.createWithParent(scope);
 
         assertThat(newScopedEnvironment.getByName(name))
                 .isEqualTo(value);
@@ -63,18 +63,18 @@ class EnvironmentTest {
     @Test
     void variableAssignedToValue() {
         String name = "abc";
-        environment.put(name, 32);
+        scope.put(name, 32);
         int newValue = 52;
-        environment.assign(name, newValue);
+        scope.assign(name, newValue);
 
-        assertThat(environment.getByName(name))
+        assertThat(scope.getByName(name))
                 .isEqualTo(newValue);
     }
 
     @Test
     void variableAssignedInParentEnvironment() {
-        Environment parent = environment;
-        MapEnvironment newScopedEnvironment = MapEnvironment.createWithParent(parent);
+        Scope parent = scope;
+        SimpleScope newScopedEnvironment = SimpleScope.createWithParent(parent);
         String name = "abc";
 
         parent.put(name, 42);
@@ -88,31 +88,31 @@ class EnvironmentTest {
 
     @Test
     void throwsWhenNonExistentVariableIsAsked() {
-        assertThatThrownBy(() -> environment.getByName("def"))
+        assertThatThrownBy(() -> scope.getByName("def"))
                 .isInstanceOf(NoSuchVariableException.class);
     }
 
     @Test
     void throwsIfNameIsNullWhenPutting() {
-        assertThatThrownBy(() -> environment.put(null, 1))
+        assertThatThrownBy(() -> scope.put(null, 1))
                 .isInstanceOf(IllegalArgumentException.class);
     }
 
     @Test
     void throwsIfNameIsNullWhenGetting() {
-        assertThatThrownBy(() -> environment.getByName(null))
+        assertThatThrownBy(() -> scope.getByName(null))
                 .isInstanceOf(IllegalArgumentException.class);
     }
 
     @Test
     void throwsIfNameIsNullWhenGettingWithClass() {
-        assertThatThrownBy(() -> environment.getByName(null, Integer.class))
+        assertThatThrownBy(() -> scope.getByName(null, Integer.class))
                 .isInstanceOf(IllegalArgumentException.class);
     }
 
     @Test
     void throwsIfClassIsNullWhenGettingWithClass() {
-        assertThatThrownBy(() -> environment.getByName("abc", null))
+        assertThatThrownBy(() -> scope.getByName("abc", null))
                 .isInstanceOf(IllegalArgumentException.class);
     }
 }
