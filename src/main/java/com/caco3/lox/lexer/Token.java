@@ -30,6 +30,9 @@ public class Token {
         PRINT,
         WHILE,
         FOR,
+        FUNCTION,
+        RETURN,
+        COMMA,
         SEMICOLON
     }
 

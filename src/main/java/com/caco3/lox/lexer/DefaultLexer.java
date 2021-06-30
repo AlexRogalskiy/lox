@@ -15,6 +15,8 @@ public class DefaultLexer implements Lexer {
             entry("var", Token.Type.VAR),
             entry("while", Token.Type.WHILE),
             entry("for", Token.Type.FOR),
+            entry("function", Token.Type.FUNCTION),
+            entry("return", Token.Type.RETURN),
             entry("print", Token.Type.PRINT)
     );
     private static final Map<Character, Token.Type> SINGLE_CHARACTER_TOKENS = Map.ofEntries(
@@ -73,6 +75,8 @@ public class DefaultLexer implements Lexer {
                 tokens.add(nextNumberLiteral());
             } else if (peek() == '"') {
                 tokens.add(nextStringLiteral());
+            } else if (peek() == ',') {
+                tokens.add(nextComma());
             } else {
                 throw new IllegalStateException("Unknown token = '" + peek() + "'");
             }
@@ -80,6 +84,12 @@ public class DefaultLexer implements Lexer {
         }
 
         return tokens;
+    }
+
+    private Token nextComma() {
+        Token token = Token.of(peek() + "", line, Token.Type.COMMA);
+        currentIndex++;
+        return token;
     }
 
     private Token nextTwoCharactersToken() {

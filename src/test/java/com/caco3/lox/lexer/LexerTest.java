@@ -136,6 +136,24 @@ public class LexerTest {
                 );
     }
 
+    @Test
+    void functionDeclarationParsed() {
+        Lexer lexer = newLexer("function foo(a, b)");
+
+        List<Token> tokens = lexer.parseTokens();
+
+        assertThat(tokens)
+                .containsExactly(
+                        Token.of("function", 1, Token.Type.FUNCTION),
+                        Token.of("foo", 1, Token.Type.IDENTIFIER),
+                        Token.of("(", 1, Token.Type.LEFT_PARENTHESIS),
+                        Token.of("a", 1, Token.Type.IDENTIFIER),
+                        Token.of(",", 1, Token.Type.COMMA),
+                        Token.of("b", 1, Token.Type.IDENTIFIER),
+                        Token.of(")", 1, Token.Type.RIGHT_PARENTHESIS)
+                );
+    }
+
     private static Lexer newLexer(String s) {
         return new DefaultLexer(s);
     }

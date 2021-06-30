@@ -3,8 +3,10 @@ package com.caco3.lox.statement.visitor;
 import com.caco3.lox.statement.BlockStatement;
 import com.caco3.lox.statement.ExpressionStatement;
 import com.caco3.lox.statement.ForStatement;
+import com.caco3.lox.statement.FunctionDeclarationStatement;
 import com.caco3.lox.statement.IfStatement;
 import com.caco3.lox.statement.PrintStatement;
+import com.caco3.lox.statement.ReturnStatement;
 import com.caco3.lox.statement.Statement;
 import com.caco3.lox.statement.VariableDeclarationStatement;
 import com.caco3.lox.statement.WhileStatement;
@@ -24,6 +26,8 @@ public class TrackingStatementVisitor implements StatementVisitor {
     private final List<IfStatement> ifStatements = new ArrayList<>();
     private final List<WhileStatement> whileStatements = new ArrayList<>();
     private final List<ForStatement> forStatements = new ArrayList<>();
+    private final List<FunctionDeclarationStatement> functionDeclarationStatements = new ArrayList<>();
+    private final List<ReturnStatement> returnStatements = new ArrayList<>();
 
     @Override
     public void visitPrintStatement(PrintStatement printStatement) {
@@ -79,5 +83,21 @@ public class TrackingStatementVisitor implements StatementVisitor {
 
         forStatements.add(forStatement);
         allStatements.add(forStatement);
+    }
+
+    @Override
+    public void visitFunctionDeclarationStatement(FunctionDeclarationStatement functionDeclarationStatement) {
+        Assert.notNull(functionDeclarationStatement, "functionDeclarationStatement == null");
+
+        functionDeclarationStatements.add(functionDeclarationStatement);
+        allStatements.add(functionDeclarationStatement);
+    }
+
+    @Override
+    public void visitReturnStatement(ReturnStatement returnStatement) {
+        Assert.notNull(returnStatement, "returnStatement == null");
+
+        returnStatements.add(returnStatement);
+        allStatements.add(returnStatement);
     }
 }

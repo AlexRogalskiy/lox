@@ -13,17 +13,21 @@ import com.caco3.lox.expression.UnaryExpression;
 import com.caco3.lox.expression.visitor.ExpressionVisitor;
 import com.caco3.lox.function.Invocable;
 import com.caco3.lox.function.PrintlnFunction;
+import com.caco3.lox.function.SimpleFunction;
 import com.caco3.lox.lexer.Token;
 import com.caco3.lox.statement.BlockStatement;
 import com.caco3.lox.statement.ExpressionStatement;
 import com.caco3.lox.statement.ForStatement;
+import com.caco3.lox.statement.FunctionDeclarationStatement;
 import com.caco3.lox.statement.IfStatement;
 import com.caco3.lox.statement.PrintStatement;
+import com.caco3.lox.statement.ReturnStatement;
 import com.caco3.lox.statement.Statement;
 import com.caco3.lox.statement.VariableDeclarationStatement;
 import com.caco3.lox.statement.WhileStatement;
 import com.caco3.lox.statement.visitor.StatementVisitor;
 import com.caco3.lox.util.Assert;
+import lombok.Getter;
 
 import java.io.PrintStream;
 import java.util.List;
@@ -32,6 +36,7 @@ import java.util.stream.Collectors;
 public class InterpreterVisitor implements StatementVisitor, ExpressionVisitor {
     private final PrintStream printStream;
     private final Scope scope;
+    @Getter
     private Object evaluatedValue;
 
     private InterpreterVisitor(PrintStream printStream) {
@@ -41,7 +46,7 @@ public class InterpreterVisitor implements StatementVisitor, ExpressionVisitor {
         scope.put("println", new PrintlnFunction(printStream));
     }
 
-    private InterpreterVisitor(PrintStream printStream, Scope parentScope) {
+    public InterpreterVisitor(PrintStream printStream, Scope parentScope) {
         this.printStream = printStream;
         this.scope = parentScope;
     }
@@ -166,6 +171,7 @@ public class InterpreterVisitor implements StatementVisitor, ExpressionVisitor {
         for (Statement statement : statements) {
             statement.accept(interpreterVisitor);
         }
+        evaluatedValue = interpreterVisitor.evaluatedValue;
     }
 
     @Override
@@ -212,6 +218,22 @@ public class InterpreterVisitor implements StatementVisitor, ExpressionVisitor {
             forStatement.getAction().accept(this);
             condition = evaluate(conditionExpression, Boolean.class);
         }
+    }
+
+    @Override
+    public void visitFunctionDeclarationStatement(FunctionDeclarationStatement functionDeclarationStatement) {
+        Assert.notNull(functionDeclarationStatement, "functionDeclarationStatement == null");
+
+        SimpleFunction simpleFunction = new SimpleFunction(functionDeclarationStatement, scope, printStream);
+        scope.put(functionDeclarationStatement.getName().getValue(), simpleFunction);
+    }
+
+    @Override
+    public void visitReturnStatement(ReturnStatement returnStatement) {
+        Assert.notNull(returnStatement, "returnStatement == null");
+
+        Expression expression = returnStatement.getExpression();
+        evaluatedValue = evaluate(expression);
     }
 
     private <T> T evaluate(

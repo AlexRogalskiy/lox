@@ -12,8 +12,10 @@ import com.caco3.lox.lexer.Token;
 import com.caco3.lox.statement.BlockStatement;
 import com.caco3.lox.statement.ExpressionStatement;
 import com.caco3.lox.statement.ForStatement;
+import com.caco3.lox.statement.FunctionDeclarationStatement;
 import com.caco3.lox.statement.IfStatement;
 import com.caco3.lox.statement.PrintStatement;
+import com.caco3.lox.statement.ReturnStatement;
 import com.caco3.lox.statement.Statement;
 import com.caco3.lox.statement.VariableDeclarationStatement;
 import com.caco3.lox.statement.WhileStatement;
@@ -45,20 +47,45 @@ public class DefaultParser implements Parser {
 
     private Statement nextDeclaration() {
         if (currentTokenIs(Token.Type.VAR)) {
-            advanceToken();
-            Token identifier = advanceToken();
-            Assert.state(identifier.getType() == Token.Type.IDENTIFIER,
-                    () -> identifier + " must be " + Token.Type.IDENTIFIER);
-
-            Expression initializer = null;
-            if (currentTokenIs(Token.Type.EQUAL)) {
-                advanceToken();
-                initializer = nextExpression();
-            }
-            consumeExactly(Token.Type.SEMICOLON);
-            return VariableDeclarationStatement.of(identifier, initializer);
+            return nextVariableDeclaration();
+        }
+        if (currentTokenIs(Token.Type.FUNCTION)) {
+            return nextFunctionDeclaration();
         }
         return nextStatement();
+    }
+
+    private VariableDeclarationStatement nextVariableDeclaration() {
+        advanceToken();
+        Token identifier = advanceToken();
+        Assert.state(identifier.getType() == Token.Type.IDENTIFIER,
+                () -> identifier + " must be " + Token.Type.IDENTIFIER);
+
+        Expression initializer = null;
+        if (currentTokenIs(Token.Type.EQUAL)) {
+            advanceToken();
+            initializer = nextExpression();
+        }
+        consumeExactly(Token.Type.SEMICOLON);
+        return VariableDeclarationStatement.of(identifier, initializer);
+    }
+
+    private Statement nextFunctionDeclaration() {
+        Token functionToken = consumeExactly(Token.Type.FUNCTION);
+        Token functionName = advanceToken();
+        consumeExactly(Token.Type.LEFT_PARENTHESIS);
+        List<Token> parameters = new ArrayList<>();
+        boolean first = true;
+        while (!currentTokenIs(Token.Type.RIGHT_PARENTHESIS)) {
+            if (!first) {
+                consumeExactly(Token.Type.COMMA);
+            }
+            parameters.add(consumeExactly(Token.Type.IDENTIFIER));
+            first = false;
+        }
+        consumeExactly(Token.Type.RIGHT_PARENTHESIS);
+        BlockStatement block = nextBlock();
+        return FunctionDeclarationStatement.of(functionToken, functionName, parameters, block);
     }
 
     private Statement nextStatement() {
@@ -77,15 +104,32 @@ public class DefaultParser implements Parser {
             return printStatement;
         }
         if (currentTokenIs(Token.Type.LEFT_BRACKET)) {
-            Token openingBracket = advanceToken();
-            List<Statement> statements = new ArrayList<>();
-            while (!currentTokenIs(Token.Type.RIGHT_BRACKET)) {
-                statements.add(nextDeclaration());
-            }
-            Token closingBracket = consumeExactly(Token.Type.RIGHT_BRACKET);
-            return BlockStatement.of(openingBracket, statements, closingBracket);
+            return nextBlock();
+        }
+        if (currentTokenIs(Token.Type.RETURN)) {
+            return nextReturnStatement();
         }
         return ExpressionStatement.of(nextExpression(), consumeExactly(Token.Type.SEMICOLON));
+    }
+
+    private Statement nextReturnStatement() {
+        Token returnToken = consumeExactly(Token.Type.RETURN);
+        Expression expression = null;
+        if (!currentTokenIs(Token.Type.SEMICOLON)) {
+            expression = nextExpression();
+        }
+        Token semicolon = consumeExactly(Token.Type.SEMICOLON);
+        return ReturnStatement.of(returnToken, expression, semicolon);
+    }
+
+    private BlockStatement nextBlock() {
+        Token openingBracket = consumeExactly(Token.Type.LEFT_BRACKET);
+        List<Statement> statements = new ArrayList<>();
+        while (!currentTokenIs(Token.Type.RIGHT_BRACKET)) {
+            statements.add(nextDeclaration());
+        }
+        Token closingBracket = consumeExactly(Token.Type.RIGHT_BRACKET);
+        return BlockStatement.of(openingBracket, statements, closingBracket);
     }
 
     private Statement nextForStatement() {
@@ -131,7 +175,7 @@ public class DefaultParser implements Parser {
 
     private Token consumeExactly(Token.Type type) {
         if (!currentTokenIs(type)) {
-            throw new IllegalStateException("Unexpected token " + type);
+            throw new IllegalStateException("Expected " + type + " but got " + advanceToken());
         }
         return advanceToken();
     }

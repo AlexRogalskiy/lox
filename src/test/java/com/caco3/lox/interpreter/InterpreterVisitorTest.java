@@ -71,6 +71,16 @@ class InterpreterVisitorTest {
                 Arguments.of("if (5 > 7) print 1; else print 2;", "2"),
                 Arguments.of("for (var i = 0; i < 10; i = i + 1) { print i; }", "0123456789"),
                 Arguments.of("println(\"abc\");", "abc\n"),
+                Arguments.of("function thrice(a) { return a * 3; } println(thrice(10));", "30\n"),
+                Arguments.of("function fibonacciOf(a) { if (a <= 2) return 1; else return fibonacciOf(a - 2) + fibonacciOf(a - 1); } println(fibonacciOf(1));", "1\n"),
+                Arguments.of("function fibonacciOf(a) { if (a <= 2) return 1; else return fibonacciOf(a - 2) + fibonacciOf(a - 1); } println(fibonacciOf(2));", "1\n"),
+                Arguments.of("function fibonacciOf(a) { \n" +
+                             "    if (a <= 2) \n" +
+                             "        return 1; \n" +
+                             "    else \n" +
+                             "        return fibonacciOf(a - 2) + fibonacciOf(a - 1);\n" +
+                             "}\n" +
+                             "println(fibonacciOf(3));\n", "2\n"),
                 Arguments.of("var x = 0; while (x < 10) { print x; x = x + 1; }", "0123456789")
         );
     }

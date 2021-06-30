@@ -3,8 +3,10 @@ package com.caco3.lox.statement.visitor;
 import com.caco3.lox.statement.BlockStatement;
 import com.caco3.lox.statement.ExpressionStatement;
 import com.caco3.lox.statement.ForStatement;
+import com.caco3.lox.statement.FunctionDeclarationStatement;
 import com.caco3.lox.statement.IfStatement;
 import com.caco3.lox.statement.PrintStatement;
+import com.caco3.lox.statement.ReturnStatement;
 import com.caco3.lox.statement.VariableDeclarationStatement;
 import com.caco3.lox.statement.WhileStatement;
 
@@ -22,4 +24,8 @@ public interface StatementVisitor {
     void visitWhileStatement(WhileStatement whileStatement);
 
     void visitForStatement(ForStatement forStatement);
+
+    void visitFunctionDeclarationStatement(FunctionDeclarationStatement functionDeclarationStatement);
+
+    void visitReturnStatement(ReturnStatement returnStatement);
 }

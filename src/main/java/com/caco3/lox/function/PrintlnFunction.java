@@ -1,5 +1,6 @@
 package com.caco3.lox.function;
 
+import com.caco3.lox.interpreter.InterpreterVisitor;
 import com.caco3.lox.util.Assert;
 import lombok.AllArgsConstructor;
 

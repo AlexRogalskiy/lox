@@ -9,6 +9,7 @@ import com.caco3.lox.lexer.DefaultLexer;
 import com.caco3.lox.lexer.Token;
 import com.caco3.lox.statement.BlockStatement;
 import com.caco3.lox.statement.ExpressionStatement;
+import com.caco3.lox.statement.FunctionDeclarationStatement;
 import com.caco3.lox.statement.IfStatement;
 import com.caco3.lox.statement.PrintStatement;
 import com.caco3.lox.statement.Statement;
@@ -256,6 +257,29 @@ class DefaultParserTest {
                         ExpressionStatement.of(
                                 CallExpression.of(IdentifierExpression.of(function), leftParenthesis, Collections.emptyList(), rightParenthesis),
                                 semicolon
+                        )
+                );
+    }
+
+    @Test
+    void functionDeclarationParsed() {
+        Token function = Token.of("function", 1, Token.Type.FUNCTION);
+        Token foo = Token.of("foo", 1, Token.Type.IDENTIFIER);
+        Token leftParenthesis = Token.of("(", 1, Token.Type.LEFT_PARENTHESIS);
+        Token rightParenthesis = Token.of(")", 1, Token.Type.RIGHT_PARENTHESIS);
+        Token leftBracket = Token.of("{", 1, Token.Type.LEFT_BRACKET);
+        Token rightBracket = Token.of("}", 1, Token.Type.RIGHT_BRACKET);
+        Parser parser = newParser(function, foo, leftParenthesis, rightParenthesis, leftBracket, rightBracket);
+
+        List<Statement> statements = parser.parseStatements();
+
+        assertThat(statements)
+                .containsExactly(
+                        FunctionDeclarationStatement.of(
+                                function,
+                                foo,
+                                Collections.emptyList(),
+                                BlockStatement.of(leftBracket, Collections.emptyList(), rightBracket)
                         )
                 );
     }
