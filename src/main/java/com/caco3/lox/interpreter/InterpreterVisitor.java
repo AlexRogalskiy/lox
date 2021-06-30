@@ -4,12 +4,15 @@ import com.caco3.lox.environment.Scope;
 import com.caco3.lox.environment.SimpleScope;
 import com.caco3.lox.expression.AssignmentExpression;
 import com.caco3.lox.expression.BinaryExpression;
+import com.caco3.lox.expression.CallExpression;
 import com.caco3.lox.expression.Expression;
 import com.caco3.lox.expression.GroupingExpression;
 import com.caco3.lox.expression.IdentifierExpression;
 import com.caco3.lox.expression.LiteralExpression;
 import com.caco3.lox.expression.UnaryExpression;
 import com.caco3.lox.expression.visitor.ExpressionVisitor;
+import com.caco3.lox.function.Invocable;
+import com.caco3.lox.function.PrintlnFunction;
 import com.caco3.lox.lexer.Token;
 import com.caco3.lox.statement.BlockStatement;
 import com.caco3.lox.statement.ExpressionStatement;
@@ -24,6 +27,7 @@ import com.caco3.lox.util.Assert;
 
 import java.io.PrintStream;
 import java.util.List;
+import java.util.stream.Collectors;
 
 public class InterpreterVisitor implements StatementVisitor, ExpressionVisitor {
     private final PrintStream printStream;
@@ -33,6 +37,8 @@ public class InterpreterVisitor implements StatementVisitor, ExpressionVisitor {
     private InterpreterVisitor(PrintStream printStream) {
         this.printStream = printStream;
         this.scope = SimpleScope.create();
+
+        scope.put("println", new PrintlnFunction(printStream));
     }
 
     private InterpreterVisitor(PrintStream printStream, Scope parentScope) {
@@ -109,6 +115,20 @@ public class InterpreterVisitor implements StatementVisitor, ExpressionVisitor {
 
         Token name = assignmentExpression.getIdentifier();
         scope.assign(name.getValue(), evaluate(assignmentExpression.getTarget()));
+    }
+
+    @Override
+    public void visitCallExpression(CallExpression callExpression) {
+        Assert.notNull(callExpression, "callExpression == null");
+
+        Expression callee = callExpression.getCallee();
+        Invocable invocable = evaluate(callee, Invocable.class);
+        List<Object> arguments = callExpression.getArguments()
+                .stream()
+                .map(this::evaluate)
+                .collect(Collectors.toUnmodifiableList());
+
+        evaluatedValue = invocable.invoke(arguments);
     }
 
     @Override

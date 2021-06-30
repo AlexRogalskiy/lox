@@ -2,6 +2,7 @@ package com.caco3.lox.expression.visitor;
 
 import com.caco3.lox.expression.AssignmentExpression;
 import com.caco3.lox.expression.BinaryExpression;
+import com.caco3.lox.expression.CallExpression;
 import com.caco3.lox.expression.Expression;
 import com.caco3.lox.expression.GroupingExpression;
 import com.caco3.lox.expression.IdentifierExpression;
@@ -36,6 +37,7 @@ public class TrackingExpressionVisitor implements ExpressionVisitor {
     private final List<Expression> visitedGroupingExpressions = new ArrayList<>();
     private final List<AssignmentExpression> visitedAssignmentExpressions = new ArrayList<>();
     private final List<IdentifierExpression> visitedIdentifierExpressions = new ArrayList<>();
+    private final List<CallExpression> visitedCallExpressions = new ArrayList<>();
 
     @Override
     public void visitBinaryExpression(BinaryExpression binaryExpression) {
@@ -83,5 +85,13 @@ public class TrackingExpressionVisitor implements ExpressionVisitor {
 
         visitedIdentifierExpressions.add(identifierExpression);
         allVisitedExpressions.add(identifierExpression);
+    }
+
+    @Override
+    public void visitCallExpression(CallExpression callExpression) {
+        Assert.notNull(callExpression, "callExpression == null");
+
+        visitedCallExpressions.add(callExpression);
+        allVisitedExpressions.add(callExpression);
     }
 }

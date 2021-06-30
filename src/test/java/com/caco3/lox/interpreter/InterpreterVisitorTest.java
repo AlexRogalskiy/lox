@@ -70,6 +70,7 @@ class InterpreterVisitorTest {
                 Arguments.of("if (5 < 7) print \"5 < 7\"; else print \"5 >= 7\";", "5 < 7"),
                 Arguments.of("if (5 > 7) print 1; else print 2;", "2"),
                 Arguments.of("for (var i = 0; i < 10; i = i + 1) { print i; }", "0123456789"),
+                Arguments.of("println(\"abc\");", "abc\n"),
                 Arguments.of("var x = 0; while (x < 10) { print x; x = x + 1; }", "0123456789")
         );
     }
