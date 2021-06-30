@@ -2,6 +2,7 @@ package com.caco3.lox.parser;
 
 import com.caco3.lox.expression.AssignmentExpression;
 import com.caco3.lox.expression.BinaryExpression;
+import com.caco3.lox.expression.CallExpression;
 import com.caco3.lox.expression.Expression;
 import com.caco3.lox.expression.GroupingExpression;
 import com.caco3.lox.expression.IdentifierExpression;
@@ -22,6 +23,8 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class DefaultParser implements Parser {
+    private static final int MAX_ARGUMENTS_FOR_CALL = 255;
+
     private final List<Token> tokens;
     private int currentTokenIndex = 0;
 
@@ -197,7 +200,25 @@ public class DefaultParser implements Parser {
             Token token = advanceToken();
             return UnaryExpression.of(token, nextUnary());
         }
-        return nextPrimary();
+        return nextCall();
+    }
+
+    private Expression nextCall() {
+        Expression maybeCall = nextPrimary();
+
+        while (currentTokenIs(Token.Type.LEFT_PARENTHESIS)) {
+            Token leftParenthesis = advanceToken();
+            List<Expression> arguments = new ArrayList<>();
+            while (!currentTokenIs(Token.Type.RIGHT_PARENTHESIS)) {
+                arguments.add(nextExpression());
+            }
+            if (arguments.size() >= MAX_ARGUMENTS_FOR_CALL) {
+                throw new IllegalStateException("Too many arguments for call " + maybeCall);
+            }
+            Token rightParenthesis = consumeExactly(Token.Type.RIGHT_PARENTHESIS);
+            maybeCall = CallExpression.of(maybeCall, leftParenthesis, arguments, rightParenthesis);
+        }
+        return maybeCall;
     }
 
     private Expression nextPrimary() {

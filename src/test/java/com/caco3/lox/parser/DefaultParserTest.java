@@ -2,6 +2,7 @@ package com.caco3.lox.parser;
 
 import com.caco3.lox.expression.AssignmentExpression;
 import com.caco3.lox.expression.BinaryExpression;
+import com.caco3.lox.expression.CallExpression;
 import com.caco3.lox.expression.IdentifierExpression;
 import com.caco3.lox.expression.LiteralExpression;
 import com.caco3.lox.lexer.DefaultLexer;
@@ -15,6 +16,7 @@ import com.caco3.lox.statement.VariableDeclarationStatement;
 import org.junit.jupiter.api.Test;
 
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -235,6 +237,25 @@ class DefaultParserTest {
                                         )
                                 ),
                                 null
+                        )
+                );
+    }
+
+    @Test
+    void callParsedSuccessfully() {
+        Token function = Token.of("myFunction", 1, Token.Type.IDENTIFIER);
+        Token leftParenthesis = Token.of("(", 1, Token.Type.LEFT_PARENTHESIS);
+        Token rightParenthesis = Token.of(";", 1, Token.Type.RIGHT_PARENTHESIS);
+        Token semicolon = Token.of(";", 1, Token.Type.SEMICOLON);
+
+        Parser parser = newParser(function, leftParenthesis, rightParenthesis, semicolon);
+        List<Statement> statements = parser.parseStatements();
+
+        assertThat(statements)
+                .containsExactly(
+                        ExpressionStatement.of(
+                                CallExpression.of(IdentifierExpression.of(function), leftParenthesis, Collections.emptyList(), rightParenthesis),
+                                semicolon
                         )
                 );
     }
