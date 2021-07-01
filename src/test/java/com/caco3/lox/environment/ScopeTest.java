@@ -6,14 +6,12 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 class ScopeTest {
-    private final Scope scope = SimpleScope.create();
-
     @Test
     void variablePutAndGet() {
         int value = 1;
         String name = "abc";
 
-        scope.put(name, value);
+        Scope scope = SimpleScope.create().put(name, value);
 
         assertThat(scope.getByName(name))
                 .isEqualTo(value);
@@ -24,7 +22,7 @@ class ScopeTest {
         int value = 1;
         String name = "abc";
 
-        scope.put(name, value);
+        Scope scope = SimpleScope.create().put(name, value);
 
         assertThat(scope.getByName(name, Integer.class))
                 .isEqualTo(value);
@@ -32,7 +30,7 @@ class ScopeTest {
 
     @Test
     void nullSuccessfullyStored() {
-        scope.put("def", null);
+        Scope scope = SimpleScope.create().put("def", null);
 
         assertThat(scope.getByName("def"))
                 .isNull();
@@ -40,9 +38,8 @@ class ScopeTest {
 
     @Test
     void nullSuccessfullyStoredAndRetrievedFromCurrentEnvironment() {
-        scope.put("abc", 3);
-        Scope newScopedEnvironment = scope.newChild();
-        newScopedEnvironment.put("abc", null);
+        Scope scope = SimpleScope.create().put("abc", 3);
+        Scope newScopedEnvironment = scope.newChild().put("abc", null);
 
         assertThat(newScopedEnvironment.getByName("abc"))
                 .isNull();
@@ -52,7 +49,7 @@ class ScopeTest {
     void parentIsConsulted() {
         String name = "abc";
         int value = 42;
-        scope.put(name, value);
+        Scope scope = SimpleScope.create().put(name, value);
 
         Scope newScopedEnvironment = scope.newChild();
 
@@ -63,7 +60,8 @@ class ScopeTest {
     @Test
     void variableAssignedToValue() {
         String name = "abc";
-        scope.put(name, 32);
+        Scope scope = SimpleScope.create().put(name, 32);
+
         int newValue = 52;
         scope.assign(name, newValue);
 
@@ -73,11 +71,10 @@ class ScopeTest {
 
     @Test
     void variableAssignedInParentEnvironment() {
-        Scope parent = scope;
-        Scope newScopedEnvironment = parent.newChild();
         String name = "abc";
+        Scope parent = SimpleScope.create().put(name, 42);
+        Scope newScopedEnvironment = parent.newChild();
 
-        parent.put(name, 42);
         int newValue = 34;
         newScopedEnvironment.assign(name, newValue);
 
@@ -88,31 +85,31 @@ class ScopeTest {
 
     @Test
     void throwsWhenNonExistentVariableIsAsked() {
-        assertThatThrownBy(() -> scope.getByName("def"))
+        assertThatThrownBy(() -> SimpleScope.create().getByName("def"))
                 .isInstanceOf(NoSuchVariableException.class);
     }
 
     @Test
     void throwsIfNameIsNullWhenPutting() {
-        assertThatThrownBy(() -> scope.put(null, 1))
+        assertThatThrownBy(() -> SimpleScope.create().put(null, 1))
                 .isInstanceOf(IllegalArgumentException.class);
     }
 
     @Test
     void throwsIfNameIsNullWhenGetting() {
-        assertThatThrownBy(() -> scope.getByName(null))
+        assertThatThrownBy(() -> SimpleScope.create().getByName(null))
                 .isInstanceOf(IllegalArgumentException.class);
     }
 
     @Test
     void throwsIfNameIsNullWhenGettingWithClass() {
-        assertThatThrownBy(() -> scope.getByName(null, Integer.class))
+        assertThatThrownBy(() -> SimpleScope.create().getByName(null, Integer.class))
                 .isInstanceOf(IllegalArgumentException.class);
     }
 
     @Test
     void throwsIfClassIsNullWhenGettingWithClass() {
-        assertThatThrownBy(() -> scope.getByName("abc", null))
+        assertThatThrownBy(() -> SimpleScope.create().getByName("abc", null))
                 .isInstanceOf(IllegalArgumentException.class);
     }
 }

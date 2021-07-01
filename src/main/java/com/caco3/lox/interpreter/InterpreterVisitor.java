@@ -35,15 +35,14 @@ import java.util.stream.Collectors;
 
 public class InterpreterVisitor implements StatementVisitor, ExpressionVisitor {
     private final PrintStream printStream;
-    private final Scope scope;
+    private Scope scope;
     @Getter
     private Object evaluatedValue;
 
     private InterpreterVisitor(PrintStream printStream) {
         this.printStream = printStream;
-        this.scope = SimpleScope.create();
-
-        scope.put("println", new PrintlnFunction(printStream));
+        this.scope = SimpleScope.create()
+                .put("println", new PrintlnFunction(printStream));
     }
 
     public InterpreterVisitor(PrintStream printStream, Scope parentScope) {
@@ -153,7 +152,7 @@ public class InterpreterVisitor implements StatementVisitor, ExpressionVisitor {
         String name = variableDeclarationStatement.getName().getValue();
         Object value = evaluate(variableDeclarationStatement.getInitializer());
 
-        scope.put(name, value);
+        scope = scope.put(name, value);
     }
 
     @Override
@@ -223,8 +222,9 @@ public class InterpreterVisitor implements StatementVisitor, ExpressionVisitor {
     public void visitFunctionDeclarationStatement(FunctionDeclarationStatement functionDeclarationStatement) {
         Assert.notNull(functionDeclarationStatement, "functionDeclarationStatement == null");
 
+        scope = scope.declare(functionDeclarationStatement.getName().getValue());
         SimpleFunction simpleFunction = new SimpleFunction(functionDeclarationStatement, scope, printStream);
-        scope.put(functionDeclarationStatement.getName().getValue(), simpleFunction);
+        scope.assign(functionDeclarationStatement.getName().getValue(), simpleFunction);
     }
 
     @Override
@@ -247,6 +247,7 @@ public class InterpreterVisitor implements StatementVisitor, ExpressionVisitor {
         if (!clazz.isInstance(interpreterVisitor.evaluatedValue)) {
             throw new IllegalStateException(interpreterVisitor.evaluatedValue + " expected to be " + clazz);
         }
+        scope = interpreterVisitor.scope;
         return clazz.cast(interpreterVisitor.evaluatedValue);
     }
 
@@ -257,6 +258,7 @@ public class InterpreterVisitor implements StatementVisitor, ExpressionVisitor {
 
         InterpreterVisitor interpreterVisitor = new InterpreterVisitor(printStream, scope);
         expression.accept(interpreterVisitor);
+        scope = interpreterVisitor.scope;
         return interpreterVisitor.evaluatedValue;
     }
 

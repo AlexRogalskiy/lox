@@ -41,7 +41,7 @@ public class SimpleFunction implements Invocable {
                       + " arguments = " + arguments);
 
         for (int i = 0; i < parameters.size(); i++) {
-            scope.put(parameters.get(i).getValue(), arguments.get(i));
+            scope = scope.put(parameters.get(i).getValue(), arguments.get(i));
         }
 
         InterpreterVisitor interpreterVisitor = new InterpreterVisitor(printStream, scope);

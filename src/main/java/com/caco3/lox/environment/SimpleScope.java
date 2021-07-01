@@ -2,19 +2,30 @@ package com.caco3.lox.environment;
 
 import com.caco3.lox.util.Assert;
 import com.caco3.lox.util.Nullable;
+import lombok.extern.slf4j.Slf4j;
 
 import java.util.LinkedHashMap;
 import java.util.Map;
 
+@Slf4j
 public class SimpleScope implements Scope {
     private static final Object NULL_SENTINEL = new Object();
+    private static final Object DECLARATION_SENTINEL = new Object();
 
-    private final Map<String, Object> variables = new LinkedHashMap<>();
+    private final Map<String, Object> variables;
     @Nullable
     private final Scope parent;
 
     private SimpleScope(Scope parent) {
+        this(new LinkedHashMap<>(), parent);
+    }
+
+    private SimpleScope(Map<String, Object> variables, Scope parent) {
+        Assert.notNull(variables, "variables == null");
+        this.variables = variables;
         this.parent = parent;
+
+        logger.trace("Created new scope, variables = {}, parent = {}", variables, parent);
     }
 
     public static SimpleScope create() {
@@ -50,10 +61,12 @@ public class SimpleScope implements Scope {
     }
 
     @Override
-    public void put(String name, Object value) {
+    public Scope put(String name, Object value) {
         Assert.notNull(name, "name == null");
 
-        variables.put(name, maskNull(value));
+        Map<String, Object> newVariables = new LinkedHashMap<>(variables);
+        newVariables.put(name, maskNull(value));
+        return new SimpleScope(newVariables, parent);
     }
 
 
@@ -64,24 +77,19 @@ public class SimpleScope implements Scope {
     }
 
     @Override
-    public void assign(String name, Object value) {
-        Scope scope = findNearestScopeContaining(name);
-        if (scope == null) {
-            throw NoSuchVariableException.forVariableName(name);
-        }
-        scope.put(name, value);
+    public Scope declare(String name) {
+        return put(name, DECLARATION_SENTINEL);
     }
 
-    private Scope findNearestScopeContaining(String name) {
-        Assert.notNull(name, "name == null");
-        Scope scope = this;
-        while (scope != null) {
-            if (scope.hasVariable(name)) {
-                return scope;
-            }
-            scope = scope.parent();
+    @Override
+    public void assign(String name, Object value) {
+        if (variables.containsKey(name)) {
+            variables.put(name, value);
+        } else if (parent != null) {
+            parent.assign(name, value);
+        } else {
+            throw NoSuchVariableException.forVariableName(name);
         }
-        return null;
     }
 
     @Override
