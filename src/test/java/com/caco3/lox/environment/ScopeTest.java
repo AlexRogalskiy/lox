@@ -41,7 +41,7 @@ class ScopeTest {
     @Test
     void nullSuccessfullyStoredAndRetrievedFromCurrentEnvironment() {
         scope.put("abc", 3);
-        SimpleScope newScopedEnvironment = SimpleScope.createWithParent(scope);
+        Scope newScopedEnvironment = scope.newChild();
         newScopedEnvironment.put("abc", null);
 
         assertThat(newScopedEnvironment.getByName("abc"))
@@ -54,7 +54,7 @@ class ScopeTest {
         int value = 42;
         scope.put(name, value);
 
-        SimpleScope newScopedEnvironment = SimpleScope.createWithParent(scope);
+        Scope newScopedEnvironment = scope.newChild();
 
         assertThat(newScopedEnvironment.getByName(name))
                 .isEqualTo(value);
@@ -74,7 +74,7 @@ class ScopeTest {
     @Test
     void variableAssignedInParentEnvironment() {
         Scope parent = scope;
-        SimpleScope newScopedEnvironment = SimpleScope.createWithParent(parent);
+        Scope newScopedEnvironment = parent.newChild();
         String name = "abc";
 
         parent.put(name, 42);

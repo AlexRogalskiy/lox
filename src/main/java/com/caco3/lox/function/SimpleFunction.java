@@ -28,7 +28,7 @@ public class SimpleFunction implements Invocable {
     @Override
     public Object invoke(List<Object> arguments) {
         Assert.notNull(arguments, "arguments == null");
-        Scope scope = SimpleScope.createWithParent(this.scope);
+        Scope scope = this.scope.newChild();
 
         List<Token> parameters = declaration.getParameters();
         Assert.isTrue(parameters.size() == arguments.size(),

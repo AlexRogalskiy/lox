@@ -165,8 +165,7 @@ public class InterpreterVisitor implements StatementVisitor, ExpressionVisitor {
     public void visitBlockStatement(BlockStatement blockStatement) {
         Assert.notNull(blockStatement, "blockStatement == null");
 
-        InterpreterVisitor interpreterVisitor = new InterpreterVisitor(printStream,
-                SimpleScope.createWithParent(scope));
+        InterpreterVisitor interpreterVisitor = new InterpreterVisitor(printStream, scope.newChild());
         List<Statement> statements = blockStatement.getStatements();
         for (Statement statement : statements) {
             statement.accept(interpreterVisitor);

@@ -14,5 +14,7 @@ public interface Scope {
     @Nullable
     Scope parent();
 
+    Scope newChild();
+
     void assign(String name, Object value);
 }

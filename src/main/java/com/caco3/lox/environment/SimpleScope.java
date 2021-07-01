@@ -21,8 +21,8 @@ public class SimpleScope implements Scope {
         return new SimpleScope(null);
     }
 
-    public static SimpleScope createWithParent(Scope scope) {
-        Assert.notNull(scope, "environment == null");
+    private static SimpleScope createWithParent(Scope scope) {
+        Assert.notNull(scope, "scope == null");
         return new SimpleScope(scope);
     }
 
@@ -82,6 +82,11 @@ public class SimpleScope implements Scope {
             scope = scope.parent();
         }
         return null;
+    }
+
+    @Override
+    public Scope newChild() {
+        return SimpleScope.createWithParent(this);
     }
 
     @Override
