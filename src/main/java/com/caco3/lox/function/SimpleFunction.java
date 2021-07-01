@@ -1,6 +1,7 @@
 package com.caco3.lox.function;
 
 import com.caco3.lox.environment.Scope;
+import com.caco3.lox.environment.SimpleScope;
 import com.caco3.lox.interpreter.InterpreterVisitor;
 import com.caco3.lox.lexer.Token;
 import com.caco3.lox.statement.FunctionDeclarationStatement;
@@ -27,6 +28,7 @@ public class SimpleFunction implements Invocable {
     @Override
     public Object invoke(List<Object> arguments) {
         Assert.notNull(arguments, "arguments == null");
+        Scope scope = SimpleScope.createWithParent(this.scope);
 
         List<Token> parameters = declaration.getParameters();
         Assert.isTrue(parameters.size() == arguments.size(),

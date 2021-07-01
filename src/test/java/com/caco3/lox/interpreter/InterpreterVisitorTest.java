@@ -74,6 +74,7 @@ class InterpreterVisitorTest {
                 Arguments.of("function thrice(a) { return a * 3; } println(thrice(10));", "30\n"),
                 Arguments.of("function fibonacciOf(a) { if (a <= 2) return 1; else return fibonacciOf(a - 2) + fibonacciOf(a - 1); } println(fibonacciOf(1));", "1\n"),
                 Arguments.of("function fibonacciOf(a) { if (a <= 2) return 1; else return fibonacciOf(a - 2) + fibonacciOf(a - 1); } println(fibonacciOf(2));", "1\n"),
+                Arguments.of("function fibonacciOf(a) { if (a <= 2) return 1; else return fibonacciOf(a - 2) + fibonacciOf(a - 1); } println(fibonacciOf(10));", "55\n"),
                 Arguments.of("function fibonacciOf(a) { \n" +
                              "    if (a <= 2) \n" +
                              "        return 1; \n" +
