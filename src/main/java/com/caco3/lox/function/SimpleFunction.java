@@ -1,15 +1,16 @@
 package com.caco3.lox.function;
 
 import com.caco3.lox.environment.Scope;
-import com.caco3.lox.environment.SimpleScope;
 import com.caco3.lox.interpreter.InterpreterVisitor;
 import com.caco3.lox.lexer.Token;
 import com.caco3.lox.statement.FunctionDeclarationStatement;
 import com.caco3.lox.util.Assert;
+import lombok.extern.slf4j.Slf4j;
 
 import java.io.PrintStream;
 import java.util.List;
 
+@Slf4j
 public class SimpleFunction implements Invocable {
     private final FunctionDeclarationStatement declaration;
     private final Scope scope;
@@ -28,6 +29,9 @@ public class SimpleFunction implements Invocable {
     @Override
     public Object invoke(List<Object> arguments) {
         Assert.notNull(arguments, "arguments == null");
+        logger.trace("Invoking function = {} with arguments = {}, current scope = {}",
+                declaration.getName().getValue(), arguments, scope);
+
         Scope scope = this.scope.newChild();
 
         List<Token> parameters = declaration.getParameters();
