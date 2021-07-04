@@ -4,6 +4,10 @@ import com.caco3.lox.util.CanNotIgnoreReturnValue;
 import com.caco3.lox.util.Nullable;
 
 public interface Scope {
+    static Scope create() {
+        return SimpleScope.create();
+    }
+
     /**
      * Get a value that a variable named {@code name} holds in the innermost scope.
      * <p>

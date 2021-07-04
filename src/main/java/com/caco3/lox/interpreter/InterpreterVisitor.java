@@ -1,7 +1,6 @@
 package com.caco3.lox.interpreter;
 
 import com.caco3.lox.environment.Scope;
-import com.caco3.lox.environment.SimpleScope;
 import com.caco3.lox.expression.AssignmentExpression;
 import com.caco3.lox.expression.BinaryExpression;
 import com.caco3.lox.expression.CallExpression;
@@ -41,7 +40,7 @@ public class InterpreterVisitor implements StatementVisitor, ExpressionVisitor {
 
     private InterpreterVisitor(PrintStream printStream) {
         this.printStream = printStream;
-        this.scope = SimpleScope.create()
+        this.scope = Scope.create()
                 .put("println", new PrintlnFunction(printStream));
     }
 
