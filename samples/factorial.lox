@@ -1,0 +1,17 @@
+function factorialOf(i) {
+    var result = 1;
+    while (i > 1) {
+        result = result * i;
+        i = i - 1;
+    }
+    return result;
+}
+
+print("factorialOf(6) = ");
+println(factorialOf(6));
+
+print("factorialOf(1) = ");
+println(factorialOf(1));
+
+print("factorialOf(0) = ");
+println(factorialOf(0));

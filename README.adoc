@@ -1,3 +1,53 @@
 = Lox
 
-Me trying to implement / tinker with the Lox language from the  http://craftinginterpreters.com/[Crafting Interpreters] book.
+This is my half-working implementation of the Lox language from the  http://craftinginterpreters.com/[Crafting Interpreters] book
+
+== Getting started
+
+. Build project
++
+[source,shell]
+----
+$ mvn package
+----
+. Run a sample
++
+[source,shell]
+----
+$ java -jar target/lox-1.0-SNAPSHOT.jar samples/hello-world.lox
+----
+. Congratulations, you can run other samples 😀
+
+== Samples
+
+=== Hello world
+
+.hello-world.lox
+[source,text]
+----
+println("Hello world")
+----
+
+=== Factorial
+
+.factorial.lox
+[source,text]
+----
+function factorialOf(i) {
+    var result = 1;
+    while (i > 1) {
+        result = result * i;
+        i = i - 1;
+    }
+    return result;
+}
+
+print("factorialOf(6) = ");
+println(factorialOf(6));
+----
+
+== To improve
+
+=== Error handling
+
+Repl driver dies with exception now
