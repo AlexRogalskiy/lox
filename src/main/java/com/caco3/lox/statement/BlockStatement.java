@@ -14,7 +14,7 @@ import java.util.List;
 @Getter
 @EqualsAndHashCode
 @ToString
-public class BlockStatement implements Statement {
+public final class BlockStatement implements Statement {
     private final Token openingBracket;
     private final List<Statement> statements;
     private final Token closingBracket;
